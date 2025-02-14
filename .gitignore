@@ -1,0 +1,37 @@
+# Java-specific
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+*.log
+*.project
+*.classpath
+*.settings/
+*.factorypath
+*.idea/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Gradle-specific
+.gradle/
+build/
+out/
+*.lock
+
+# Environment variables or sensitive files
+.env
+*.env
+*.keystore
+
+# Auth0 helper class (if sensitive data is hardcoded)
+src/main/java/com/ephr/Auth0Helper.java
+
+# SQLite database (if you don’t want to share database data)
+src/main/resources/database/*.db
+
+# VS Code
+.vscode/
