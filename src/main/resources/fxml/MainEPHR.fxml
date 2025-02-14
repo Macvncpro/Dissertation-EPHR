@@ -14,7 +14,7 @@
             <Button text="Appointments" fx:id="appointmentsButton"/>
             <Button text="Reports" fx:id="reportsButton"/>
             <Button text="Prescriptions" fx:id="prescriptionsButton"/>
-            <Button text="Logout" fx:id="logoutButton" style="-fx-background-color: red; -fx-text-fill: white;"/>
+            <Button text="Logout" onAction="#handleLogout" style="-fx-background-color: red; -fx-text-fill: white;" />
         </HBox>
     </top>
 

@@ -1,5 +1,6 @@
 package com.ephr;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -54,13 +55,13 @@ public class MainEPHRController {
     }
 
     @FXML
-    private void handleLogout() {
-        // Close current window
-        Stage stage = (Stage) logoutButton.getScene().getWindow();
-        stage.close();
-
-        // Redirect to the login screen
-        Main.showLoginScreen();
+    private void handleLogout(ActionEvent event) {
+        try {
+            Main mainApp = new Main();
+            mainApp.showLoginScreen();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
