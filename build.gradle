@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+javafx {
+    version = "23.0.2"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.openjfx:javafx-controls:23.0.2'
+    implementation 'org.openjfx:javafx-fxml:23.0.2'
+    implementation 'org.xerial:sqlite-jdbc:3.42.0.0'
+    implementation 'com.auth0:auth0:1.43.0'
+    implementation group: 'com.auth0', name: 'auth0', version: '2.17.0'
+}
+
+application {
+    mainClass = 'com.ephr.Main'
+}
+
+tasks.withType(JavaExec) {
+    jvmArgs += [
+        '--module-path', 'C:/javafx-sdk-20/javafx-sdk-23.0.2/lib',
+        '--add-modules', 'javafx.controls,javafx.fxml'
+    ]
+}
