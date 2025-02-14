@@ -1,9 +1,9 @@
 package com.ephr;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Label;
 
 public class LoginController {
 
@@ -17,32 +17,25 @@ public class LoginController {
     private Label errorLabel;
 
     @FXML
-    private void handleLogin() {
+    private void login() {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            errorLabel.setText("Please enter both username and password.");
-        } else if (DatabaseHelper.validateLogin(username, password)) {
-            errorLabel.setText("");
-            System.out.println("Login successful!");
-            // Navigate to another screen or display dashboard
+        // Debugging to verify button press and input values
+        System.out.println("Login button clicked!");
+        System.out.println("Username: " + username);
+        System.out.println("Password: " + password);
+
+        // Authenticate user using the database
+        boolean isAuthenticated = DatabaseHelper.authenticateUser(username, password);
+
+        if (isAuthenticated) {
+            // Redirect to the main EPHR screen
+            System.out.println("Login successful! Redirecting...");
+            Main.showEPHRScreen();
         } else {
+            // Display error message
             errorLabel.setText("Invalid username or password.");
-        }
-    }
-
-    @FXML
-    private void handleRegister() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
-
-        if (username.isEmpty() || password.isEmpty()) {
-            errorLabel.setText("Please fill out all fields to register.");
-        } else if (DatabaseHelper.insertUser(username, password)) {
-            errorLabel.setText("Registration successful! You can now log in.");
-        } else {
-            errorLabel.setText("Registration failed. Username might already exist.");
         }
     }
 }

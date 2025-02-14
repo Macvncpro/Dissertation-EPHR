@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.ephr.MainEPHRController"
+            prefWidth="1000" prefHeight="700">
+
+    <!-- Top: Navigation Bar -->
+    <top>
+        <HBox spacing="10" style="-fx-background-color: #2a9df4; -fx-padding: 10;">
+            <Button text="Appointments" fx:id="appointmentsButton"/>
+            <Button text="Reports" fx:id="reportsButton"/>
+            <Button text="Prescriptions" fx:id="prescriptionsButton"/>
+            <Button text="Logout" fx:id="logoutButton" style="-fx-background-color: red; -fx-text-fill: white;"/>
+        </HBox>
+    </top>
+
+    <!-- Center: Main Content Area -->
+    <center>
+        <VBox spacing="15" alignment="TOP_CENTER" style="-fx-padding: 20;">
+            <Label text="Electronic Patient Health Record" style="-fx-font-size: 24px;"/>
+            
+            <!-- Patient Details -->
+            <GridPane hgap="10" vgap="10">
+                <Label text="Name:"/>
+                <Label fx:id="patientNameLabel"/>
+                
+                <Label text="Age:"/>
+                <Label fx:id="patientAgeLabel"/>
+                
+                <Label text="Gender:"/>
+                <Label fx:id="patientGenderLabel"/>
+            </GridPane>
+
+            <!-- Medical History -->
+            <TableView fx:id="medicalHistoryTable" prefHeight="200">
+                <columns>
+                    <TableColumn text="Date" fx:id="dateColumn"/>
+                    <TableColumn text="Condition" fx:id="conditionColumn"/>
+                    <TableColumn text="Doctor" fx:id="doctorColumn"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

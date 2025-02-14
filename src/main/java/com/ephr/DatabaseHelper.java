@@ -8,46 +8,20 @@ import java.sql.SQLException;
 
 public class DatabaseHelper {
 
-    private static final String DATABASE_URL = "jdbc:sqlite:src/main/resources/database/users.db";
+    private static final String DB_URL = "jdbc:sqlite:src/main/resources/database/users.db";
 
-    // Connect to the database
-    public static Connection connect() {
-        Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(DATABASE_URL);
-            System.out.println("Connected to SQLite database!");
-        } catch (SQLException e) {
-            System.err.println("Database connection failed: " + e.getMessage());
-        }
-        return connection;
-    }
+    // Method to authenticate user credentials
+    public static boolean authenticateUser(String username, String password) {
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?")) {
 
-    // Insert a new user into the database
-    public static boolean insertUser(String username, String password) {
-        String sql = "INSERT INTO users(username, password) VALUES(?, ?)";
-        try (Connection connection = connect();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, username);
-            statement.setString(2, password);
-            statement.executeUpdate();
-            return true;
-        } catch (SQLException e) {
-            System.err.println("Failed to insert user: " + e.getMessage());
-            return false;
-        }
-    }
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+            ResultSet rs = stmt.executeQuery();
 
-    // Validate user login credentials
-    public static boolean validateLogin(String username, String password) {
-        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-        try (Connection connection = connect();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, username);
-            statement.setString(2, password);
-            ResultSet resultSet = statement.executeQuery();
-            return resultSet.next(); // Returns true if a matching user is found
+            return rs.next(); // If there's a result, the user exists
         } catch (SQLException e) {
-            System.err.println("Login validation failed: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }

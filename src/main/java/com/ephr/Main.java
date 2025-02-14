@@ -6,12 +6,39 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+
+    private static Stage primaryStage;
+
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/LoginPage.fxml"));
-        primaryStage.setScene(new Scene(loader.load()));
-        primaryStage.setTitle("EPHR Login System");
-        primaryStage.show();
+    public void start(Stage stage) throws Exception {
+        primaryStage = stage;
+        showLoginScreen();
+    }
+
+    public static void showLoginScreen() {
+        try {
+            // Ensure this matches the relative path in the resources folder
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/fxml/LoginPage.fxml"));
+            Scene scene = new Scene(loader.load());
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("Login");
+            primaryStage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void showEPHRScreen() {
+        try {
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/fxml/MainEPHR.fxml"));
+            Scene scene = new Scene(loader.load());
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("Electronic Patient Health Record");
+            primaryStage.centerOnScreen();
+            primaryStage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
