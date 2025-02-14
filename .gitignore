@@ -10,6 +10,8 @@
 *.settings/
 *.factorypath
 *.idea/
+*.jmx
+*.jfr
 
 # OS-specific
 .DS_Store
@@ -21,11 +23,16 @@ desktop.ini
 build/
 out/
 *.lock
+!gradle-wrapper.jar # Exclude the wrapper jar from ignoring, it's required for the project to run.
+
+# Maven-specific (if Maven is used in the future)
+target/
 
 # Environment variables or sensitive files
 .env
 *.env
 *.keystore
+auth0-keys.json # For Auth0 keys if stored in a file.
 
 # Auth0 helper class (if sensitive data is hardcoded)
 src/main/java/com/ephr/Auth0Helper.java
@@ -35,3 +42,19 @@ src/main/resources/database/*.db
 
 # VS Code
 .vscode/
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.ipr
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.bak
+*.old
+
+# System-specific
+/.history
