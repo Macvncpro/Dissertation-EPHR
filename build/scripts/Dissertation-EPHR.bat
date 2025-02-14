@@ -70,7 +70,7 @@ goto fail
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\Dissertation-EPHR.jar;%APP_HOME%\lib\javafx-fxml-23.0.2-win.jar;%APP_HOME%\lib\javafx-controls-23.0.2-win.jar;%APP_HOME%\lib\sqlite-jdbc-3.42.0.0.jar;%APP_HOME%\lib\auth0-2.17.0.jar;%APP_HOME%\lib\javafx-graphics-23.0.2-win.jar;%APP_HOME%\lib\logging-interceptor-4.11.0.jar;%APP_HOME%\lib\okhttp-4.11.0.jar;%APP_HOME%\lib\java-jwt-4.4.0.jar;%APP_HOME%\lib\jackson-annotations-2.15.0.jar;%APP_HOME%\lib\jackson-core-2.15.0.jar;%APP_HOME%\lib\jackson-databind-2.15.0.jar;%APP_HOME%\lib\failsafe-2.4.4.jar;%APP_HOME%\lib\javafx-base-23.0.2-win.jar;%APP_HOME%\lib\okio-jvm-3.5.0.jar;%APP_HOME%\lib\kotlin-stdlib-jdk8-1.9.0.jar;%APP_HOME%\lib\kotlin-stdlib-jdk7-1.9.0.jar;%APP_HOME%\lib\kotlin-stdlib-1.9.0.jar;%APP_HOME%\lib\kotlin-stdlib-common-1.9.0.jar;%APP_HOME%\lib\annotations-13.0.jar;%APP_HOME%\lib\fastdoubleparser-0.8.0.jar
+set CLASSPATH=%APP_HOME%\lib\Dissertation-EPHR.jar;%APP_HOME%\lib\javafx-fxml-23.0.2-win.jar;%APP_HOME%\lib\javafx-controls-23.0.2-win.jar;%APP_HOME%\lib\sqlite-jdbc-3.42.0.0.jar;%APP_HOME%\lib\javafx-graphics-23.0.2-win.jar;%APP_HOME%\lib\javafx-base-23.0.2-win.jar
 
 
 @rem Execute Dissertation-EPHR
