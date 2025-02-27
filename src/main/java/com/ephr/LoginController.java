@@ -1,25 +1,18 @@
 package com.ephr;
 
-import com.auth0.AuthenticationController;
-import com.auth0.Tokens;
-import com.auth0.IdentityVerificationException;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-
 import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
 
 public class LoginController {
     @FXML
-    private WebView webView; // WebView for Auth0 login
+    private WebView webView;
 
     @FXML
     private Label errorLabel;
-
-    private final AuthenticationController authController = Auth0Helper.getAuthController();
 
     @FXML
     public void initialize() {
@@ -31,26 +24,27 @@ public class LoginController {
                     "&redirect_uri=http://localhost:8080/callback" +
                     "&scope=openid profile email";
 
-            webEngine.load(authURL); // Auto-load Auth0 login
+            webEngine.load(authURL);
+
+            // Listen for URL changes to detect successful login
+            webEngine.locationProperty().addListener((obs, oldLocation, newLocation) -> {
+                if (newLocation.startsWith("http://localhost:8080/callback")) {
+                    System.out.println("✅ Auth0 Callback Detected: " + newLocation);
+                    handleSuccessfulLogin();
+                }
+            });
         });
     }
 
-    public void handleCallback(HttpServletRequest request) {
-        try {
-            Tokens tokens = Auth0Helper.handleCallback(request);
-            System.out.println("Access Token: " + tokens.getAccessToken());
-
-            // Redirect to EPHR screen after login
-            Platform.runLater(() -> {
-                try {
-                    Main.showEPHRScreen();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    errorLabel.setText("Error loading the EPHR screen.");
-                }
-            });
-        } catch (IdentityVerificationException e) {
-            Platform.runLater(() -> errorLabel.setText("Authentication failed."));
-        }
+    private void handleSuccessfulLogin() {
+        System.out.println("✅ Login Successful, Redirecting to Main EPHR Screen...");
+        Platform.runLater(() -> {
+            try {
+                Main.showEPHRScreen();
+            } catch (IOException e) {
+                e.printStackTrace();
+                errorLabel.setText("Error loading the EPHR screen.");
+            }
+        });
     }
 }
