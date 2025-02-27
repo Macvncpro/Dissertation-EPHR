@@ -1,41 +1,56 @@
 package com.ephr;
 
+import com.auth0.AuthenticationController;
+import com.auth0.Tokens;
+import com.auth0.IdentityVerificationException;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+
+import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
 
 public class LoginController {
-
     @FXML
-    private TextField usernameField;
-
-    @FXML
-    private PasswordField passwordField;
+    private WebView webView; // WebView for Auth0 login
 
     @FXML
     private Label errorLabel;
 
+    private final AuthenticationController authController = Auth0Helper.getAuthController();
+
     @FXML
-    private void login() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+    public void initialize() {
+        Platform.runLater(() -> {
+            WebEngine webEngine = webView.getEngine();
+            String authURL = "https://" + Auth0Helper.getDomain() + "/authorize" +
+                    "?client_id=" + Auth0Helper.getClientId() +
+                    "&response_type=code" +
+                    "&redirect_uri=http://localhost:8080/callback" +
+                    "&scope=openid profile email";
 
-        // Debugging to verify button press and input values
-        System.out.println("Login button clicked!");
-        System.out.println("Username: " + username);
-        System.out.println("Password: " + password);
+            webEngine.load(authURL); // Auto-load Auth0 login
+        });
+    }
 
-        // Authenticate user using the database
-        boolean isAuthenticated = DatabaseHelper.authenticateUser(username, password);
+    public void handleCallback(HttpServletRequest request) {
+        try {
+            Tokens tokens = Auth0Helper.handleCallback(request);
+            System.out.println("Access Token: " + tokens.getAccessToken());
 
-        if (isAuthenticated) {
-            // Redirect to the main EPHR screen
-            System.out.println("Login successful! Redirecting...");
-            Main.showEPHRScreen();
-        } else {
-            // Display error message
-            errorLabel.setText("Invalid username or password.");
+            // Redirect to EPHR screen after login
+            Platform.runLater(() -> {
+                try {
+                    Main.showEPHRScreen();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    errorLabel.setText("Error loading the EPHR screen.");
+                }
+            });
+        } catch (IdentityVerificationException e) {
+            Platform.runLater(() -> errorLabel.setText("Authentication failed."));
         }
     }
 }

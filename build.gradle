@@ -11,7 +11,7 @@ java {
 
 javafx {
     version = "23.0.2"
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web' ]
 }
 
 repositories {
@@ -21,10 +21,13 @@ repositories {
 dependencies {
     implementation 'org.openjfx:javafx-controls:23.0.2'
     implementation 'org.openjfx:javafx-fxml:23.0.2'
+    implementation 'org.openjfx:javafx-web:23.0.2'
     implementation 'org.xerial:sqlite-jdbc:3.42.0.0'
-    
+
+    implementation 'com.auth0:auth0:1.28.0'
+    implementation 'com.auth0:java-jwt:4.2.1'        
+    implementation 'com.auth0:mvc-auth-commons:1.4.0'
     implementation 'javax.servlet:javax.servlet-api:4.0.1'
-    implementation group: 'com.auth0', name: 'auth0', version: '2.17.0'
 }
 
 application {
@@ -36,5 +39,13 @@ sourceSets {
         resources {
             srcDirs = ["src/main/resources"]
         }
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'com.auth0:auth0:1.28.0'
+        force 'com.auth0:java-jwt:3.18.2'
+        force 'com.auth0:mvc-auth-commons:1.5.0'
     }
 }
