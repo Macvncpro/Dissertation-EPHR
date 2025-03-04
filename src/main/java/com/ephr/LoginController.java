@@ -28,11 +28,13 @@ public class LoginController {
 
             // Listen for URL changes to detect successful login
             webEngine.locationProperty().addListener((obs, oldLocation, newLocation) -> {
+                System.out.println("WebView navigated to: " + newLocation);  // Debugging output
+            
                 if (newLocation.startsWith("http://localhost:8080/callback")) {
-                    System.out.println("✅ Auth0 Callback Detected: " + newLocation);
+                    System.out.println("✅ Callback detected!");
                     handleSuccessfulLogin();
                 }
-            });
+            });            
         });
     }
 
