@@ -62,28 +62,35 @@ public class MainEPHRController {
     private void handleLogout(ActionEvent event) {
         System.out.println("Logging out...");
     
-        // ✅ First, clear any session-related data (if stored)
-        clearUserSession(); // Implemented below
+        // ✅ Clear user session to prevent auto-login
+        clearUserSession();
     
-        // ✅ Construct the Auth0 logout URL
-        String logoutURL = "https://" + Auth0Helper.getDomain() + "/v2/logout" +
-                           "?client_id=" + Auth0Helper.getClientId() +
-                           "&returnTo=http://localhost:8080"; 
-    
-        // ✅ Ensure WebView does not cause auto-login
-        WebView webView = new WebView();
-        WebEngine webEngine = webView.getEngine();
-        webEngine.load(logoutURL);
-        System.out.println("Navigating to Auth0 Logout...");
-    
-        // ✅ Redirect to login screen AFTER ensuring session is cleared
+        // ✅ Instantly switch to login page BEFORE logging out from Auth0
         Platform.runLater(() -> {
             try {
                 Main.showLoginScreen();
-                System.out.println("🔄 Switched to LoginPage.fxml (Session Cleared)");
+                System.out.println("🔄 Instantly switched to LoginPage.fxml (Session Cleared)");
             } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println("❌ Error loading login screen.");
+            }
+        });
+    
+        // ✅ Perform a **forced** Auth0 logout in the background
+        Platform.runLater(() -> {
+            try {
+                Thread.sleep(500); // Small delay to prevent race conditions
+                String logoutURL = "https://" + Auth0Helper.getDomain() + "/v2/logout" +
+                                   "?client_id=" + Auth0Helper.getClientId() +
+                                   "&returnTo=http://localhost:8080/logout_complete";  // <-- NEW: Redirect to dummy logout page
+    
+                WebView webView = new WebView();
+                WebEngine webEngine = webView.getEngine();
+                webEngine.load(logoutURL);
+    
+                System.out.println("✅ Navigating to Auth0 Logout...");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         });
     }
@@ -93,12 +100,10 @@ public class MainEPHRController {
      */
     private void clearUserSession() {
         System.out.println("🧹 Clearing session data...");
-    
-        // Example: If you're storing user session data, reset it here
-        System.setProperty("user_session", ""); // If using system properties
-        // You can also clear any stored tokens, cookies, or credentials
+        System.setProperty("user_session", ""); 
+        System.clearProperty("AUTH0_ACCESS_TOKEN");
+        System.clearProperty("AUTH0_ID_TOKEN");
     }    
-
 
     @FXML
     private void handleNavigation() {

@@ -22,21 +22,22 @@ public class LoginController {
                     "?client_id=" + Auth0Helper.getClientId() +
                     "&response_type=code" +
                     "&redirect_uri=http://localhost:8080/callback" +
-                    "&scope=openid profile email";
-
+                    "&scope=openid profile email" +
+                    "&prompt=login";  // <-- NEW: Forces login every time
+    
+            System.out.println("🔒 Redirecting to Auth0 login...");
             webEngine.load(authURL);
-
-            // Listen for URL changes to detect successful login
+    
+            // Listen for Auth0 callback
             webEngine.locationProperty().addListener((obs, oldLocation, newLocation) -> {
-                System.out.println("WebView navigated to: " + newLocation);  // Debugging output
-            
+                System.out.println("🌐 WebView navigated to: " + newLocation);
                 if (newLocation.startsWith("http://localhost:8080/callback")) {
-                    System.out.println("✅ Callback detected!");
+                    System.out.println("✅ Auth0 Callback Detected!");
                     handleSuccessfulLogin();
                 }
-            });            
+            });
         });
-    }
+    }    
 
     private void handleSuccessfulLogin() {
         System.out.println("✅ Login Successful, Redirecting to Main EPHR Screen...");
