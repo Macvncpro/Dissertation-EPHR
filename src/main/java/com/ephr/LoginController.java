@@ -30,7 +30,7 @@ public class LoginController {
     
             // Listen for Auth0 callback
             webEngine.locationProperty().addListener((obs, oldLocation, newLocation) -> {
-                System.out.println("🌐 WebView navigated to: " + newLocation);
+                // System.out.println("🌐 WebView navigated to: " + newLocation);
                 if (newLocation.startsWith("http://localhost:8080/callback")) {
                     System.out.println("✅ Auth0 Callback Detected!");
                     handleSuccessfulLogin();

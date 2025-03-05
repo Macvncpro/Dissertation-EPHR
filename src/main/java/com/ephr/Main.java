@@ -21,6 +21,7 @@ public class Main extends Application {
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.show();
+        primaryStage.centerOnScreen();
     }
 
     public static void showEPHRScreen() throws IOException {
@@ -28,5 +29,6 @@ public class Main extends Application {
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.show();
+        primaryStage.centerOnScreen();
     }
 }
