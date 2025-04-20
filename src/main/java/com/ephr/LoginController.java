@@ -51,57 +51,61 @@ public class LoginController {
     private void handleSuccessfulLogin(String callbackUrl) {
         try {
             String code = callbackUrl.split("code=")[1];
-
             String domain = Auth0Helper.getDomain();
             String clientId = Auth0Helper.getClientId();
             String clientSecret = Auth0Helper.getClientSecret();
             String redirectUri = "http://localhost:8080/callback";
-
+    
             String payload = "grant_type=authorization_code"
                     + "&client_id=" + clientId
                     + "&client_secret=" + clientSecret
                     + "&code=" + code
                     + "&redirect_uri=" + redirectUri;
-
+    
             HttpURLConnection conn = (HttpURLConnection) new URL("https://" + domain + "/oauth/token").openConnection();
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
+    
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(payload.getBytes());
             }
-
+    
             BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             StringBuilder responseBuilder = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) responseBuilder.append(line);
             reader.close();
-
+    
             JSONObject json = new JSONObject(responseBuilder.toString());
             String idToken = json.getString("id_token");
-
+    
             DecodedJWT decodedJWT = JWT.decode(idToken);
             String email = decodedJWT.getClaim("email").asString();
-
-            // ✅ Print email
-            System.out.println("📧 Logged in email from token: " + email);
-
-            // 🧠 Store in memory (optional): System.setProperty("user_email", email);
-
+    
+            // 🧠 Get role here from DB
+            String role = DatabaseHelper.getUserRoleByEmail(email);
+            System.out.println("📧 Logged in as: " + email);
+            System.out.println("🧾 Role: " + role);
+    
+            if (role == null) {
+                Platform.runLater(() -> errorLabel.setText("❌ User not found in DB"));
+                return;
+            }
+    
             Platform.runLater(() -> {
                 try {
-                    Main.showEPHRScreen(); // TODO: we’ll update this to route based on role
+                    Main.showEPHRScreen(email, role); // ✅ pass role here
                 } catch (IOException e) {
                     e.printStackTrace();
-                    errorLabel.setText("Error loading the EPHR screen.");
+                    errorLabel.setText("❌ Failed to load dashboard.");
                 }
             });
-
+    
         } catch (Exception e) {
             e.printStackTrace();
-            Platform.runLater(() -> errorLabel.setText("❌ Failed to retrieve token or decode email."));
+            Platform.runLater(() -> errorLabel.setText("❌ Auth failed."));
         }
-    }
+    }    
 
 }

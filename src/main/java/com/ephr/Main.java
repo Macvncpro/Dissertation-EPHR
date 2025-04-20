@@ -24,11 +24,17 @@ public class Main extends Application {
         primaryStage.centerOnScreen();
     }
 
-    public static void showEPHRScreen() throws IOException {
-        Parent root = FXMLLoader.load(Main.class.getResource("/fxml/MainEPHR.fxml"));
+    public static void showEPHRScreen(String email, String role) throws IOException {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/fxml/MainEPHR.fxml"));
+        Parent root = loader.load();
+    
+        MainEPHRController controller = loader.getController();
+        controller.setUserContext(email, role);
+    
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.show();
         primaryStage.centerOnScreen();
     }
+    
 }

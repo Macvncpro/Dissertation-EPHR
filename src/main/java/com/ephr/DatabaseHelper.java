@@ -10,19 +10,24 @@ public class DatabaseHelper {
 
     private static final String DB_URL = "jdbc:sqlite:src/main/resources/database/users.db";
 
-    // Method to authenticate user credentials
-    public static boolean authenticateUser(String username, String password) {
+    public static String getUserRoleByEmail(String email) {
+        String role = null;
+        String query = "SELECT role FROM users WHERE email = ?";
+    
         try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?")) {
-
-            stmt.setString(1, username);
-            stmt.setString(2, password);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+    
+            stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
-
-            return rs.next(); // If there's a result, the user exists
+    
+            if (rs.next()) {
+                role = rs.getString("role");
+            }
+    
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
-    }
+    
+        return role;
+    }    
 }

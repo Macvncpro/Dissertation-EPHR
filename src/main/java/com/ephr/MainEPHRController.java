@@ -1,71 +1,79 @@
 package com.ephr;
 
 import java.io.IOException;
-
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
 public class MainEPHRController {
 
-    @FXML
-    private Button appointmentsButton;
+    @FXML private Button appointmentsButton;
+    @FXML private Button reportsButton;
+    @FXML private Button prescriptionsButton;
+    @FXML private Button logoutButton;
 
-    @FXML
-    private Button reportsButton;
+    @FXML private Label patientNameLabel;
+    @FXML private Label patientAgeLabel;
+    @FXML private Label patientGenderLabel;
 
-    @FXML
-    private Button prescriptionsButton;
+    private String email;
+    private String role;
 
-    @FXML
-    private Button logoutButton;
+    // Call this after FXML is loaded to set context
+    public void setUserContext(String email, String role) {
+        this.email = email;
+        this.role = role;
 
-    @FXML
-    private Label patientNameLabel;
+        // Example placeholder logic
+        patientNameLabel.setText(email);
+        patientAgeLabel.setText("N/A");
+        patientGenderLabel.setText(role);
 
-    @FXML
-    private Label patientAgeLabel;
+        applyPermissions();
+    }
 
-    @FXML
-    private Label patientGenderLabel;
-
-    @FXML
-    private TableView<?> medicalHistoryTable;
-
-    @FXML
-    private TableColumn<?, ?> dateColumn;
-
-    @FXML
-    private TableColumn<?, ?> conditionColumn;
-
-    @FXML
-    private TableColumn<?, ?> doctorColumn;
+    private void applyPermissions() {
+        switch (role.toLowerCase()) {
+            case "admin" -> {
+                // Full access
+            }
+            case "doctor" -> {
+                prescriptionsButton.setVisible(true);
+                reportsButton.setVisible(true);
+                appointmentsButton.setVisible(true);
+            }
+            case "nurse" -> {
+                prescriptionsButton.setVisible(false);
+                reportsButton.setVisible(false);
+            }
+            case "staff" -> {
+                prescriptionsButton.setVisible(false);
+                reportsButton.setVisible(false);
+                appointmentsButton.setVisible(false);
+            }
+            case "patient" -> {
+                prescriptionsButton.setVisible(false);
+                reportsButton.setVisible(false);
+                appointmentsButton.setVisible(false);
+            }
+            default -> System.out.println("⚠ Unknown role: " + role);
+        }
+    }
 
     @FXML
     private void initialize() {
-        // Load patient details
-        patientNameLabel.setText("John Doe");
-        patientAgeLabel.setText("30");
-        patientGenderLabel.setText("Male");
-
-        // Populate medical history (use data from the database in a real scenario)
-        // For now, this is just a placeholder
+        // Optional: pre-load static UI here if needed
     }
 
     @FXML
     private void handleLogout(ActionEvent event) {
         System.out.println("Logging out...");
-    
-        // ✅ Clear user session to prevent auto-login
         clearUserSession();
-    
-        // ✅ Instantly switch to login page BEFORE logging out from Auth0
+
         Platform.runLater(() -> {
             try {
                 Main.showLoginScreen();
@@ -75,40 +83,34 @@ public class MainEPHRController {
                 System.out.println("❌ Error loading login screen.");
             }
         });
-    
-        // ✅ Perform a **forced** Auth0 logout in the background
+
         Platform.runLater(() -> {
             try {
-                Thread.sleep(500); // Small delay to prevent race conditions
+                Thread.sleep(500);
                 String logoutURL = "https://" + Auth0Helper.getDomain() + "/v2/logout" +
                                    "?client_id=" + Auth0Helper.getClientId() +
-                                   "&returnTo=http://localhost:8080/logout_complete";  // <-- NEW: Redirect to dummy logout page
-    
+                                   "&returnTo=http://localhost:8080/logout_complete";
+
                 WebView webView = new WebView();
                 WebEngine webEngine = webView.getEngine();
                 webEngine.load(logoutURL);
-    
+
                 System.out.println("✅ Navigating to Auth0 Logout...");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         });
     }
-    
-    /**
-     * Clears stored session data to prevent auto-login after logout.
-     */
+
     private void clearUserSession() {
         System.out.println("🧹 Clearing session data...");
         System.setProperty("user_session", ""); 
         System.clearProperty("AUTH0_ACCESS_TOKEN");
         System.clearProperty("AUTH0_ID_TOKEN");
-    }    
+    }
 
     @FXML
     private void handleNavigation() {
-        // Handle navigation logic for buttons (Appointments, Reports, etc.)
-        // Example:
         System.out.println("Navigating to another section...");
     }
 }
