@@ -5,7 +5,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.ephr.MainEPHRController"
+            fx:controller="com.ephr.controllers.MainEPHRController"
             prefWidth="1000" prefHeight="700">
 
     <!-- Top: Navigation Bar -->
@@ -21,26 +21,22 @@
     <!-- Center: Main Content Area -->
     <center>
         <VBox spacing="15" alignment="TOP_CENTER" style="-fx-padding: 20;">
-            <Label text="Electronic Patient Health Record" style="-fx-font-size: 24px;"/>
-            
-            <!-- Patient Details -->
-            <GridPane hgap="10" vgap="10">
-                <Label text="Name:"/>
-                <Label fx:id="patientNameLabel"/>
-                
-                <Label text="Age:"/>
-                <Label fx:id="patientAgeLabel"/>
-                
-                <Label text="Gender:"/>
-                <Label fx:id="patientGenderLabel"/>
-            </GridPane>
 
-            <!-- Medical History -->
-            <TableView fx:id="medicalHistoryTable" prefHeight="200">
+            <!-- 📋 Patient Records Table -->
+            <Label text="All Patient Records" fx:id="recordsLabel" visible="false"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+            <TableView fx:id="patientTable" visible="false" prefWidth="900" prefHeight="300">
                 <columns>
-                    <TableColumn text="Date" fx:id="dateColumn"/>
-                    <TableColumn text="Condition" fx:id="conditionColumn"/>
-                    <TableColumn text="Doctor" fx:id="doctorColumn"/>
+                    <TableColumn fx:id="firstNameCol" text="First Name"/>
+                    <TableColumn fx:id="lastNameCol" text="Last Name"/>
+                    <TableColumn fx:id="emailCol" text="Email"/>
+                    <TableColumn fx:id="genderCol" text="Gender"/>
+                    <TableColumn fx:id="dobCol" text="Date of Birth"/>
+                    <TableColumn fx:id="medicalCol" text="Medical History"/>
+                    <TableColumn fx:id="allergyCol" text="Allergies"/>
+                    <TableColumn fx:id="insuranceCompanyCol" text="Insurance Company"/>
+                    <TableColumn fx:id="insuranceNumberCol" text="Insurance #"/>
                 </columns>
             </TableView>
         </VBox>

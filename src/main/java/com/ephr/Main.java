@@ -7,6 +7,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
 
+import com.ephr.controllers.MainEPHRController;
+
 public class Main extends Application {
     private static Stage primaryStage;
 
@@ -20,6 +22,7 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(Main.class.getResource("/fxml/LoginPage.fxml"));
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
+        primaryStage.setTitle("Electronic Patient Health Record");
         primaryStage.show();
         primaryStage.centerOnScreen();
     }
