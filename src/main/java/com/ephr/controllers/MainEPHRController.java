@@ -2,6 +2,7 @@ package com.ephr.controllers;
 
 import java.io.IOException;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -15,6 +16,7 @@ import com.ephr.helpers.DatabaseHelper;
 import com.ephr.models.PatientRecord;
 
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
 
 public class MainEPHRController {
 
@@ -22,10 +24,6 @@ public class MainEPHRController {
     @FXML private Button reportsButton;
     @FXML private Button prescriptionsButton;
     @FXML private Button logoutButton;
-
-    @FXML private Label patientNameLabel;
-    @FXML private Label patientAgeLabel;
-    @FXML private Label patientGenderLabel;
 
     @FXML private Label recordsLabel;
     @FXML private TableView<PatientRecord> patientTable;
@@ -41,6 +39,11 @@ public class MainEPHRController {
     @FXML private TableColumn<PatientRecord, String> insuranceCompanyCol;
     @FXML private TableColumn<PatientRecord, String> insuranceNumberCol;
 
+    @FXML private TitledPane  addUserPane;
+    @FXML private TextField firstNameField, lastNameField, emailField, dobField;
+    @FXML private ChoiceBox<String> genderChoiceBox, roleChoiceBox;
+    @FXML private Label formStatusLabel;
+
     private String email;
     private String role;
 
@@ -49,6 +52,20 @@ public class MainEPHRController {
         this.role = role;
 
         applyPermissions();
+
+        if (role.equalsIgnoreCase("admin") || role.equalsIgnoreCase("receptionist")) {
+            addUserPane.setVisible(true);
+            genderChoiceBox.setItems(FXCollections.observableArrayList("male", "female"));
+
+            if (role.equalsIgnoreCase("admin")) {
+                roleChoiceBox.setItems(FXCollections.observableArrayList("admin", "doctor", "nurse", "receptionist", "patient"));
+            } else {
+                roleChoiceBox.setItems(FXCollections.observableArrayList("patient"));
+            }
+        } else {
+            addUserPane.setVisible(false);
+        }
+
     }
 
     private void applyPermissions() {
@@ -59,7 +76,7 @@ public class MainEPHRController {
             case "doctor", "nurse", "receptionist" -> {
                 loadAndShowPatientTable();
             }
-            case "staff", "patient" -> {
+            case "patient" -> {
                 prescriptionsButton.setVisible(false);
                 reportsButton.setVisible(false);
                 appointmentsButton.setVisible(false);
@@ -85,6 +102,31 @@ public class MainEPHRController {
         patientTable.setItems(data);
         patientTable.setVisible(true);
         recordsLabel.setVisible(true);
+    }
+
+    @FXML
+    private void handleCreateUser() {
+        String firstName = firstNameField.getText();
+        String lastName = lastNameField.getText();
+        String email = emailField.getText();
+        String dob = dobField.getText();
+        String gender = genderChoiceBox.getValue();
+        String newUserRole = roleChoiceBox.getValue();
+    
+        if (firstName.isBlank() || lastName.isBlank() || email.isBlank() || dob.isBlank()
+            || gender == null || newUserRole == null) {
+            formStatusLabel.setText("❌ Please fill out all fields.");
+            return;
+        }
+    
+        boolean success = DatabaseHelper.insertNewUser(firstName, lastName, email, dob, gender, newUserRole);
+        if (success) {
+            formStatusLabel.setStyle("-fx-text-fill: green;");
+            formStatusLabel.setText("✅ User created.");
+        } else {
+            formStatusLabel.setStyle("-fx-text-fill: red;");
+            formStatusLabel.setText("❌ Failed to create user.");
+        }
     }
 
     @FXML

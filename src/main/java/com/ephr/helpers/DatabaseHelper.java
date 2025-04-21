@@ -38,6 +38,27 @@ public class DatabaseHelper {
         return role;
     }
 
+    public static boolean insertNewUser(String firstName, String lastName, String email, String dob, String gender, String role) {
+        String query = "INSERT INTO users (first_name, last_name, email, date_of_birth, gender, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))";
+    
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+    
+            stmt.setString(1, firstName);
+            stmt.setString(2, lastName);
+            stmt.setString(3, email);
+            stmt.setString(4, dob);
+            stmt.setString(5, gender);
+            stmt.setString(6, role);
+    
+            return stmt.executeUpdate() > 0;
+    
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }    
+
     public static ObservableList<PatientRecord> getAllPatientRecords() {
         ObservableList<PatientRecord> list = FXCollections.observableArrayList();
 

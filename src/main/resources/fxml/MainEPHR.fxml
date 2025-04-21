@@ -39,6 +39,41 @@
                     <TableColumn fx:id="insuranceNumberCol" text="Insurance #"/>
                 </columns>
             </TableView>
+
+            <!-- Add User Section -->
+            <TitledPane fx:id="addUserPane" text="Add New User" expanded="false" animated="true">
+                <VBox spacing="10" alignment="TOP_CENTER" style="-fx-padding: 10;">
+                    <GridPane hgap="10" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints halignment="RIGHT"/>
+                            <ColumnConstraints prefWidth="200"/>
+                        </columnConstraints>
+
+                        <Label text="First Name:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TextField fx:id="firstNameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                        <Label text="Last Name:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <TextField fx:id="lastNameField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <Label text="Email:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <TextField fx:id="emailField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                        <Label text="DOB:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <TextField fx:id="dobField" promptText="DD/MM/YYYY" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                        <Label text="Gender:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <ChoiceBox fx:id="genderChoiceBox" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                        <Label text="Role:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                        <ChoiceBox fx:id="roleChoiceBox" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                    </GridPane>
+
+                    <Button text="Create User" onAction="#handleCreateUser"/>
+                    <Label fx:id="formStatusLabel" style="-fx-text-fill: red;"/>
+                </VBox>
+            </TitledPane>
+
+
         </VBox>
     </center>
 </BorderPane>
