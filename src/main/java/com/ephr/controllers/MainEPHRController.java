@@ -1,6 +1,9 @@
 package com.ephr.controllers;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,7 +19,6 @@ import com.ephr.helpers.DatabaseHelper;
 import com.ephr.models.PatientRecord;
 
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.VBox;
 
 public class MainEPHRController {
 
@@ -39,8 +41,9 @@ public class MainEPHRController {
     @FXML private TableColumn<PatientRecord, String> insuranceCompanyCol;
     @FXML private TableColumn<PatientRecord, String> insuranceNumberCol;
 
-    @FXML private TitledPane  addUserPane;
-    @FXML private TextField firstNameField, lastNameField, emailField, dobField;
+    @FXML private TitledPane addUserPane;
+    @FXML private TextField firstNameField, lastNameField, emailField;
+    @FXML private DatePicker dobPicker;
     @FXML private ChoiceBox<String> genderChoiceBox, roleChoiceBox;
     @FXML private Label formStatusLabel;
 
@@ -62,10 +65,19 @@ public class MainEPHRController {
             } else {
                 roleChoiceBox.setItems(FXCollections.observableArrayList("patient"));
             }
+
+            // Restrict date picker to prevent future DOBs
+            dobPicker.setDayCellFactory(picker -> new DateCell() {
+                @Override
+                public void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    setDisable(empty || date.isAfter(LocalDate.now()));
+                }
+            });
+
         } else {
             addUserPane.setVisible(false);
         }
-
     }
 
     private void applyPermissions() {
@@ -109,16 +121,24 @@ public class MainEPHRController {
         String firstName = firstNameField.getText();
         String lastName = lastNameField.getText();
         String email = emailField.getText();
-        String dob = dobField.getText();
+
+        LocalDate selectedDate = dobPicker.getValue();
+        if (selectedDate == null) {
+            formStatusLabel.setStyle("-fx-text-fill: red;");
+            formStatusLabel.setText("❌ Please select a valid date of birth.");
+            return;
+        }
+
+        String dob = selectedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         String gender = genderChoiceBox.getValue();
         String newUserRole = roleChoiceBox.getValue();
-    
-        if (firstName.isBlank() || lastName.isBlank() || email.isBlank() || dob.isBlank()
+
+        if (firstName.isBlank() || lastName.isBlank() || email.isBlank()
             || gender == null || newUserRole == null) {
             formStatusLabel.setText("❌ Please fill out all fields.");
             return;
         }
-    
+
         boolean success = DatabaseHelper.insertNewUser(firstName, lastName, email, dob, gender, newUserRole);
         if (success) {
             formStatusLabel.setStyle("-fx-text-fill: green;");
@@ -131,7 +151,6 @@ public class MainEPHRController {
 
     @FXML
     private void initialize() {
-        // UI defaults
         patientTable.setVisible(false);
         recordsLabel.setVisible(false);
     }

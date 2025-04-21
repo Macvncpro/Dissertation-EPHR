@@ -59,7 +59,7 @@
                         <TextField fx:id="emailField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
                         <Label text="DOB:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                        <TextField fx:id="dobField" promptText="DD/MM/YYYY" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                        <DatePicker fx:id="dobPicker" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
                         <Label text="Gender:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
                         <ChoiceBox fx:id="genderChoiceBox" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
