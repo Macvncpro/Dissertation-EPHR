@@ -23,9 +23,17 @@
         <VBox spacing="15" alignment="TOP_CENTER" style="-fx-padding: 20;">
 
             <!-- 📋 Patient Records Table -->
-            <Label text="All Patient Records" fx:id="recordsLabel" visible="false"
-                   style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+            <BorderPane>
+                <center>
+                    <Label text="All Patient Records" fx:id="recordsLabel" visible="false"
+                        style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                </center>
+                <right>
+                    <Button fx:id="refreshButton" text="🔄 Refresh" onAction="#handleRefreshTable" visible="false"/>
+                </right>
+            </BorderPane>
 
+            <!-- Patient Details Table -->
             <TableView fx:id="patientTable" visible="false" prefWidth="900" prefHeight="300">
                 <columns>
                     <TableColumn fx:id="firstNameCol" text="First Name"/>
@@ -42,12 +50,13 @@
 
             <!-- Add User Section -->
             <TitledPane fx:id="addUserPane" text="Add New User" expanded="false" animated="true">
-                <VBox spacing="10" alignment="TOP_CENTER" style="-fx-padding: 10;">
-                    <GridPane hgap="10" vgap="10">
-                        <columnConstraints>
-                            <ColumnConstraints halignment="RIGHT"/>
-                            <ColumnConstraints prefWidth="200"/>
-                        </columnConstraints>
+                <ScrollPane fitToWidth="true" prefHeight="280" hbarPolicy="NEVER">
+                    <VBox spacing="10" alignment="TOP_CENTER" style="-fx-padding: 10;">
+                        <GridPane hgap="10" vgap="10">
+                            <columnConstraints>
+                                <ColumnConstraints halignment="RIGHT"/>
+                                <ColumnConstraints prefWidth="200"/>
+                            </columnConstraints>
 
                         <Label text="First Name:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                         <TextField fx:id="firstNameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
@@ -66,11 +75,28 @@
 
                         <Label text="Role:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
                         <ChoiceBox fx:id="roleChoiceBox" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                        <Label text="Medical History:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                        <TextField fx:id="medicalHistoryField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+                        <Label text="Allergies:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                        <TextField fx:id="allergiesField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+                        <Label text="Insurance Company:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+                        <TextField fx:id="insuranceCompanyField" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+                        <Label text="Insurance Number:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+                        <TextField fx:id="insuranceNumberField" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+
+                        <Label text="Assigned Doctor:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
+                        <ChoiceBox fx:id="doctorChoiceBox" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
+
                     </GridPane>
 
                     <Button text="Create User" onAction="#handleCreateUser"/>
                     <Label fx:id="formStatusLabel" style="-fx-text-fill: red;"/>
-                </VBox>
+                    </VBox>
+                </ScrollPane>
             </TitledPane>
 
 

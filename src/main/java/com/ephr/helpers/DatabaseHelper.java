@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import com.ephr.models.Patient;
 import com.ephr.models.PatientRecord;
@@ -103,5 +104,69 @@ public class DatabaseHelper {
 
         return list;
     }
+
+    public static int insertUserAndReturnId(String firstName, String lastName, String email, String dob, String gender, String role) {
+        String query = "INSERT INTO users (first_name, last_name, email, date_of_birth, gender, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+    
+            stmt.setString(1, firstName);
+            stmt.setString(2, lastName);
+            stmt.setString(3, email);
+            stmt.setString(4, dob);
+            stmt.setString(5, gender);
+            stmt.setString(6, role);
+    
+            int rows = stmt.executeUpdate();
+            if (rows > 0) {
+                ResultSet rs = stmt.getGeneratedKeys();
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static boolean insertPatientDetails(int userId, String medicalHistory, String allergies, String insuranceCompany, String insuranceNumber, Integer doctorId) {
+        String query = "INSERT INTO patient (user_id, medical_history, allergies, insurance_provider, insurance_number, doctor_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))";
+    
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+    
+            stmt.setInt(1, userId);
+            stmt.setString(2, medicalHistory);
+            stmt.setString(3, allergies);
+            stmt.setString(4, insuranceCompany);
+            stmt.setString(5, insuranceNumber);
+            
+            if (doctorId != null) {
+                stmt.setInt(6, doctorId);
+            } else {
+                stmt.setNull(6, java.sql.Types.INTEGER);
+            }
+    
+            return stmt.executeUpdate() > 0;
+    
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static Integer getDoctorIdByUserId(int userId) {
+        String query = "SELECT id FROM doctor WHERE user_id = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }    
 
 }
