@@ -41,10 +41,10 @@
                     <TableColumn fx:id="emailCol" text="Email"/>
                     <TableColumn fx:id="genderCol" text="Gender"/>
                     <TableColumn fx:id="dobCol" text="Date of Birth"/>
-                    <TableColumn fx:id="medicalCol" text="Medical History"/>
-                    <TableColumn fx:id="allergyCol" text="Allergies"/>
-                    <TableColumn fx:id="insuranceCompanyCol" text="Insurance Company"/>
-                    <TableColumn fx:id="insuranceNumberCol" text="Insurance #"/>
+                    <TableColumn fx:id="nhsCol" text="NHS Number"/>
+                    <TableColumn fx:id="statusCol" text="Status"/>
+                    <TableColumn fx:id="sharingCol" text="Data Sharing"/>
+                    <TableColumn fx:id="scrCol" text="SCR Consent"/>
                 </columns>
             </TableView>
 
@@ -76,20 +76,20 @@
                         <Label text="Role:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
                         <ChoiceBox fx:id="roleChoiceBox" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
-                        <Label text="Medical History:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-                        <TextField fx:id="medicalHistoryField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
-
-                        <Label text="Allergies:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-                        <TextField fx:id="allergiesField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
-
-                        <Label text="Insurance Company:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
-                        <TextField fx:id="insuranceCompanyField" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
-
-                        <Label text="Insurance Number:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
-                        <TextField fx:id="insuranceNumberField" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
-
                         <Label text="Assigned Doctor:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
                         <ChoiceBox fx:id="doctorChoiceBox" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
+
+                        <Label text="NHS Number:" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
+                        <TextField fx:id="nhsNumberField" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
+
+                        <Label text="Patient Status:" GridPane.rowIndex="12" GridPane.columnIndex="0"/>
+                        <ChoiceBox fx:id="statusChoiceBox" GridPane.rowIndex="12" GridPane.columnIndex="1"/>
+
+                        <Label text="Data Sharing Consent:" GridPane.rowIndex="13" GridPane.columnIndex="0"/>
+                        <ChoiceBox fx:id="dataSharingChoiceBox" GridPane.rowIndex="13" GridPane.columnIndex="1"/>
+
+                        <Label text="SCR Consent:" GridPane.rowIndex="14" GridPane.columnIndex="0"/>
+                        <ChoiceBox fx:id="scrConsentChoiceBox" GridPane.rowIndex="14" GridPane.columnIndex="1"/>
 
                     </GridPane>
 

@@ -42,11 +42,10 @@ public class MainEPHRController {
     @FXML private TableColumn<PatientRecord, String> emailCol;
     @FXML private TableColumn<PatientRecord, String> genderCol;
     @FXML private TableColumn<PatientRecord, String> dobCol;
-
-    @FXML private TableColumn<PatientRecord, String> medicalCol;
-    @FXML private TableColumn<PatientRecord, String> allergyCol;
-    @FXML private TableColumn<PatientRecord, String> insuranceCompanyCol;
-    @FXML private TableColumn<PatientRecord, String> insuranceNumberCol;
+    @FXML private TableColumn<PatientRecord, String> nhsCol;
+    @FXML private TableColumn<PatientRecord, String> statusCol;
+    @FXML private TableColumn<PatientRecord, Boolean> sharingCol;
+    @FXML private TableColumn<PatientRecord, Boolean> scrCol;
 
     @FXML private TitledPane addUserPane;
     @FXML private TextField firstNameField, lastNameField, emailField;
@@ -54,12 +53,11 @@ public class MainEPHRController {
     @FXML private ChoiceBox<String> genderChoiceBox, roleChoiceBox;
     @FXML private Label formStatusLabel;
 
-    @FXML private TextField medicalHistoryField;
-    @FXML private TextField allergiesField;
-    @FXML private TextField insuranceCompanyField;
-    @FXML private TextField insuranceNumberField;
+    @FXML private TextField nhsNumberField;
+    @FXML private ChoiceBox<String> statusChoiceBox;
+    @FXML private ChoiceBox<String> dataSharingChoiceBox;
+    @FXML private ChoiceBox<String> scrConsentChoiceBox;    
     @FXML private ChoiceBox<String> doctorChoiceBox;
-    
 
     private String email;
     private String role;
@@ -68,20 +66,24 @@ public class MainEPHRController {
     public void setUserContext(String email, String role) {
         this.email = email;
         this.role = role;
-
+    
         applyPermissions();
-
+    
         if (role.equalsIgnoreCase("admin") || role.equalsIgnoreCase("receptionist")) {
             addUserPane.setVisible(true);
-
+    
             genderChoiceBox.setItems(FXCollections.observableArrayList("male", "female"));
-
+            genderChoiceBox.setValue("male");
+    
             if (role.equalsIgnoreCase("admin")) {
                 roleChoiceBox.setItems(FXCollections.observableArrayList("admin", "doctor", "nurse", "receptionist", "patient"));
             } else {
                 roleChoiceBox.setItems(FXCollections.observableArrayList("patient"));
+                roleChoiceBox.setValue("patient");
+                roleChoiceBox.setDisable(true); // Locks it for receptionists
             }
-
+            roleChoiceBox.setValue("patient");
+    
             // Restrict DOB picker to prevent future dates
             dobPicker.setDayCellFactory(picker -> new DateCell() {
                 @Override
@@ -90,34 +92,43 @@ public class MainEPHRController {
                     setDisable(empty || date.isAfter(LocalDate.now()));
                 }
             });
-
-            // Populate doctor dropdown (doctorChoiceBox)
+    
+            // Populate doctor dropdown
             ObservableList<String> doctorNames = FXCollections.observableArrayList();
             doctorMap.clear();
-
+    
             try (Connection conn = DriverManager.getConnection("jdbc:sqlite:src/main/resources/database/users.db");
-                PreparedStatement stmt = conn.prepareStatement("SELECT id, first_name, last_name FROM users WHERE role = 'doctor'");
-                ResultSet rs = stmt.executeQuery()) {
-
+                 PreparedStatement stmt = conn.prepareStatement("SELECT id, first_name, last_name FROM users WHERE role = 'doctor'");
+                 ResultSet rs = stmt.executeQuery()) {
+    
                 while (rs.next()) {
                     int id = rs.getInt("id");
                     String fullName = rs.getString("first_name") + " " + rs.getString("last_name");
                     doctorMap.put(fullName, id);
                     doctorNames.add(fullName);
                 }
-
+    
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
+    
             doctorChoiceBox.setItems(doctorNames);
-            doctorChoiceBox.setDisable(!role.equalsIgnoreCase("receptionist") && !role.equalsIgnoreCase("admin"));
-
+            doctorChoiceBox.setDisable(false);
+    
+            // Consent and Status Choices
+            statusChoiceBox.setItems(FXCollections.observableArrayList("active", "inactive", "deceased"));
+            statusChoiceBox.setValue("active");
+    
+            dataSharingChoiceBox.setItems(FXCollections.observableArrayList("Yes", "No"));
+            dataSharingChoiceBox.setValue("Yes");
+    
+            scrConsentChoiceBox.setItems(FXCollections.observableArrayList("Yes", "No"));
+            scrConsentChoiceBox.setValue("Yes");
+    
         } else {
             addUserPane.setVisible(false);
         }
-    }
-
+    }    
 
     private void applyPermissions() {
         switch (role.toLowerCase()) {
@@ -150,10 +161,10 @@ public class MainEPHRController {
         genderCol.setCellValueFactory(new PropertyValueFactory<>("gender"));
         dobCol.setCellValueFactory(new PropertyValueFactory<>("dateOfBirth"));
 
-        medicalCol.setCellValueFactory(new PropertyValueFactory<>("medicalHistory"));
-        allergyCol.setCellValueFactory(new PropertyValueFactory<>("allergies"));
-        insuranceCompanyCol.setCellValueFactory(new PropertyValueFactory<>("insuranceCompany"));
-        insuranceNumberCol.setCellValueFactory(new PropertyValueFactory<>("insuranceNumber"));
+        nhsCol.setCellValueFactory(new PropertyValueFactory<>("nhsNumber"));
+        statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
+        sharingCol.setCellValueFactory(new PropertyValueFactory<>("dataSharingConsent"));
+        scrCol.setCellValueFactory(new PropertyValueFactory<>("scrConsent"));
 
         patientTable.setItems(data);
         patientTable.setVisible(true);
@@ -178,10 +189,24 @@ public class MainEPHRController {
         String gender = genderChoiceBox.getValue();
         String newUserRole = roleChoiceBox.getValue();
     
-        String medicalHistory = medicalHistoryField.getText();
-        String allergies = allergiesField.getText();
-        String insuranceCompany = insuranceCompanyField.getText();
-        String insuranceNumber = insuranceNumberField.getText();
+        String nhsNumber = nhsNumberField.getText().replaceAll("\\s+", ""); // Remove spaces for validation
+
+        // Validate NHS Number: Must be 10-digit numeric (basic check)
+        if (!nhsNumber.matches("\\d{10}")) {
+            formStatusLabel.setStyle("-fx-text-fill: red;");
+            formStatusLabel.setText("❌ NHS Number must be 10 digits.");
+            return;
+        }
+
+        String status = statusChoiceBox.getValue();
+        boolean dataSharing = "Yes".equals(dataSharingChoiceBox.getValue());
+        boolean scrConsent = "Yes".equals(scrConsentChoiceBox.getValue());
+
+        if (newUserRole.equalsIgnoreCase("patient") && nhsNumber.isBlank()) {
+            formStatusLabel.setStyle("-fx-text-fill: red;");
+            formStatusLabel.setText("❌ NHS Number is required for patients.");
+            return;
+        }        
     
         // Validate required fields
         if (firstName.isBlank() || lastName.isBlank() || email.isBlank()
@@ -207,8 +232,7 @@ public class MainEPHRController {
             
     
             success = DatabaseHelper.insertPatientDetails(
-                userId, medicalHistory, allergies, insuranceCompany, insuranceNumber, doctorId
-            );
+                userId,nhsNumber,status,doctorId,dataSharing,scrConsent);
         }
     
         if (success) {
@@ -225,7 +249,26 @@ public class MainEPHRController {
     private void initialize() {
         patientTable.setVisible(false);
         recordsLabel.setVisible(false);
-    }
+    
+        // NHS number formatter
+        nhsNumberField.textProperty().addListener((obs, oldText, newText) -> {
+            String digitsOnly = newText.replaceAll("\\D", ""); // strip non-digits
+            if (digitsOnly.length() > 10) {
+                digitsOnly = digitsOnly.substring(0, 10); // limit to 10 digits
+            }
+    
+            StringBuilder formatted = new StringBuilder();
+            for (int i = 0; i < digitsOnly.length(); i++) {
+                if (i > 0 && i % 3 == 0 && i != 9) {
+                    formatted.append(" ");
+                }
+                formatted.append(digitsOnly.charAt(i));
+            }
+    
+            nhsNumberField.setText(formatted.toString());
+            nhsNumberField.positionCaret(formatted.length()); // keep caret at end
+        });
+    }    
 
     @FXML
     private void handleLogout(ActionEvent event) {
