@@ -46,6 +46,8 @@ public class MainEPHRController {
     @FXML private TableColumn<PatientRecord, String> statusCol;
     @FXML private TableColumn<PatientRecord, Boolean> sharingCol;
     @FXML private TableColumn<PatientRecord, Boolean> scrCol;
+    @FXML private TableColumn<PatientRecord, String> phoneCol;
+    @FXML private TableColumn<PatientRecord, String> contactCol;
 
     @FXML private TitledPane addUserPane;
     @FXML private TextField firstNameField, lastNameField, emailField;
@@ -58,6 +60,8 @@ public class MainEPHRController {
     @FXML private ChoiceBox<String> dataSharingChoiceBox;
     @FXML private ChoiceBox<String> scrConsentChoiceBox;    
     @FXML private ChoiceBox<String> doctorChoiceBox;
+    @FXML private TextField phoneField;
+    @FXML private ChoiceBox<String> contactChoiceBox;
 
     private String email;
     private String role;
@@ -124,6 +128,9 @@ public class MainEPHRController {
     
             scrConsentChoiceBox.setItems(FXCollections.observableArrayList("Yes", "No"));
             scrConsentChoiceBox.setValue("Yes");
+
+            contactChoiceBox.setItems(FXCollections.observableArrayList("email", "phone", "SMS", "NHS App", "letter"));
+            contactChoiceBox.setValue("email");
     
         } else {
             addUserPane.setVisible(false);
@@ -165,6 +172,8 @@ public class MainEPHRController {
         statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
         sharingCol.setCellValueFactory(new PropertyValueFactory<>("dataSharingConsent"));
         scrCol.setCellValueFactory(new PropertyValueFactory<>("scrConsent"));
+        phoneCol.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
+        contactCol.setCellValueFactory(new PropertyValueFactory<>("preferredContact"));
 
         patientTable.setItems(data);
         patientTable.setVisible(true);
@@ -206,7 +215,17 @@ public class MainEPHRController {
             formStatusLabel.setStyle("-fx-text-fill: red;");
             formStatusLabel.setText("❌ NHS Number is required for patients.");
             return;
+        }
+
+        String phone = phoneField.getText();
+        
+        if (!phone.matches("^07\\d{9}$")) {
+            formStatusLabel.setStyle("-fx-text-fill: red;");
+            formStatusLabel.setText("❌ Enter a valid UK mobile number (e.g. 07XXXXXXXXX).");
+            return;
         }        
+    
+        String preferredContact = contactChoiceBox.getValue();
     
         // Validate required fields
         if (firstName.isBlank() || lastName.isBlank() || email.isBlank()
@@ -217,7 +236,7 @@ public class MainEPHRController {
         }
     
         // Insert into users table
-        int userId = DatabaseHelper.insertUserAndReturnId(firstName, lastName, email, dob, gender, newUserRole);
+        int userId = DatabaseHelper.insertUserAndReturnId(firstName, lastName, email, dob, gender, newUserRole, phone, preferredContact);
         boolean success = (userId != -1);
     
         // If it's a patient, also insert into patient table with doctor link

@@ -45,6 +45,8 @@
                     <TableColumn fx:id="statusCol" text="Status"/>
                     <TableColumn fx:id="sharingCol" text="Data Sharing"/>
                     <TableColumn fx:id="scrCol" text="SCR Consent"/>
+                    <TableColumn fx:id="phoneCol" text="Phone Number"/>
+                    <TableColumn fx:id="contactCol" text="Preferred Contact"/>
                 </columns>
             </TableView>
 
@@ -90,6 +92,12 @@
 
                         <Label text="SCR Consent:" GridPane.rowIndex="14" GridPane.columnIndex="0"/>
                         <ChoiceBox fx:id="scrConsentChoiceBox" GridPane.rowIndex="14" GridPane.columnIndex="1"/>
+
+                        <Label text="Phone Number:" GridPane.rowIndex="15" GridPane.columnIndex="0"/>
+                        <TextField fx:id="phoneField" GridPane.rowIndex="15" GridPane.columnIndex="1"/>
+
+                        <Label text="Preferred Contact:" GridPane.rowIndex="16" GridPane.columnIndex="0"/>
+                        <ChoiceBox fx:id="contactChoiceBox" GridPane.rowIndex="16" GridPane.columnIndex="1"/>
 
                     </GridPane>
 
