@@ -247,6 +247,12 @@ public class MainEPHRController {
             return;
         }
 
+        // Validate postcode format (basic check)
+        if (!postcode.toUpperCase().matches("^([A-Z]{1,2}\\d[A-Z\\d]? \\d[A-Z]{2})$")) {
+            formStatusLabel.setStyle("-fx-text-fill: red;");
+            formStatusLabel.setText("❌ Enter a valid UK postcode (e.g., SW1A 1AA).");
+            return;
+        }        
     
         // Validate required fields
         if (firstName.isBlank() || lastName.isBlank() || email.isBlank()
@@ -312,6 +318,27 @@ public class MainEPHRController {
             nhsNumberField.setText(formatted.toString());
             nhsNumberField.positionCaret(formatted.length()); // keep caret at end
         });
+
+        postcodeField.setTextFormatter(new TextFormatter<>(change -> {
+            String raw = change.getControlNewText().toUpperCase().replaceAll("[^A-Z0-9]", "");
+        
+            // Limit length (UK postcodes are 5–7 chars without space)
+            if (raw.length() > 7) return null;
+        
+            // Insert space before final 3 characters if long enough
+            String formatted;
+            if (raw.length() > 3) {
+                formatted = raw.substring(0, raw.length() - 3) + " " + raw.substring(raw.length() - 3);
+            } else {
+                formatted = raw;
+            }
+        
+            // Apply change
+            change.setText(formatted);
+            change.setRange(0, change.getControlText().length()); // replace all
+            return change;
+        }));           
+   
     }    
 
     @FXML
