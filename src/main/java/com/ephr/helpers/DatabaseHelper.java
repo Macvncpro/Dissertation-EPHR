@@ -7,9 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.ephr.models.Patient;
 import com.ephr.models.PatientRecord;
-import com.ephr.models.Users;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -66,6 +64,7 @@ public class DatabaseHelper {
         String query = """
             SELECT u.first_name, u.last_name, u.email, u.gender, u.date_of_birth,
                    u.phone_number, u.preferred_contact,
+                   u.address_line1, u.address_line2, u.postcode,
                    p.nhs_number, p.status, p.data_sharing_consent, p.scr_consent
             FROM users u
             JOIN patient p ON u.id = p.user_id
@@ -83,6 +82,9 @@ public class DatabaseHelper {
                 String dob = rs.getString("date_of_birth");
                 String phone = rs.getString("phone_number");
                 String preferredContact = rs.getString("preferred_contact");
+                String address1 = rs.getString("address_line1");
+                String address2 = rs.getString("address_line2");
+                String postcode = rs.getString("postcode");
     
                 String nhsNumber = rs.getString("nhs_number");
                 String status = rs.getString("status");
@@ -100,7 +102,10 @@ public class DatabaseHelper {
                         dataSharing,
                         scrConsent,
                         phone,
-                        preferredContact
+                        preferredContact,
+                        address1,
+                        address2,
+                        postcode
                 ));
             }
     
@@ -113,9 +118,17 @@ public class DatabaseHelper {
 
     public static int insertUserAndReturnId(String firstName, String lastName, String email,
                                             String dob, String gender, String role,
-                                            String phone, String preferredContact) {
-        String query = "INSERT INTO users (first_name, last_name, email, date_of_birth, gender, role, phone_number, preferred_contact, created_at, updated_at) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))";
+                                            String phone, String preferredContact,
+                                            String address1, String address2, String postcode) {
+
+        String query = """
+            INSERT INTO users (
+                first_name, last_name, email, date_of_birth, gender, role,
+                phone_number, preferred_contact, address_line1, address_line2, postcode,
+                created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+        """;
+
         try (Connection conn = DriverManager.getConnection(DB_URL);
             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -127,6 +140,9 @@ public class DatabaseHelper {
             stmt.setString(6, role);
             stmt.setString(7, phone);
             stmt.setString(8, preferredContact);
+            stmt.setString(9, address1);
+            stmt.setString(10, address2);
+            stmt.setString(11, postcode);
 
             int rows = stmt.executeUpdate();
             if (rows > 0) {

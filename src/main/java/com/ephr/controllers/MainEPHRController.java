@@ -48,6 +48,9 @@ public class MainEPHRController {
     @FXML private TableColumn<PatientRecord, Boolean> scrCol;
     @FXML private TableColumn<PatientRecord, String> phoneCol;
     @FXML private TableColumn<PatientRecord, String> contactCol;
+    @FXML private TableColumn<PatientRecord, String> addressLine1Col;
+    @FXML private TableColumn<PatientRecord, String> addressLine2Col;
+    @FXML private TableColumn<PatientRecord, String> postcodeCol;
 
     @FXML private TitledPane addUserPane;
     @FXML private TextField firstNameField, lastNameField, emailField;
@@ -62,6 +65,9 @@ public class MainEPHRController {
     @FXML private ChoiceBox<String> doctorChoiceBox;
     @FXML private TextField phoneField;
     @FXML private ChoiceBox<String> contactChoiceBox;
+    @FXML private TextField addressLine1Field;
+    @FXML private TextField addressLine2Field;
+    @FXML private TextField postcodeField;
 
     private String email;
     private String role;
@@ -175,6 +181,10 @@ public class MainEPHRController {
         phoneCol.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
         contactCol.setCellValueFactory(new PropertyValueFactory<>("preferredContact"));
 
+        addressLine1Col.setCellValueFactory(new PropertyValueFactory<>("addressLine1"));
+        addressLine2Col.setCellValueFactory(new PropertyValueFactory<>("addressLine2"));
+        postcodeCol.setCellValueFactory(new PropertyValueFactory<>("postcode"));
+
         patientTable.setItems(data);
         patientTable.setVisible(true);
         recordsLabel.setVisible(true);
@@ -226,6 +236,17 @@ public class MainEPHRController {
         }        
     
         String preferredContact = contactChoiceBox.getValue();
+
+        String address1 = addressLine1Field.getText();
+        String address2 = addressLine2Field.getText();
+        String postcode = postcodeField.getText();
+
+        if (address1.isBlank() || postcode.isBlank()) {
+            formStatusLabel.setStyle("-fx-text-fill: red;");
+            formStatusLabel.setText("❌ Address Line 1 and Postcode are required.");
+            return;
+        }
+
     
         // Validate required fields
         if (firstName.isBlank() || lastName.isBlank() || email.isBlank()
@@ -236,7 +257,11 @@ public class MainEPHRController {
         }
     
         // Insert into users table
-        int userId = DatabaseHelper.insertUserAndReturnId(firstName, lastName, email, dob, gender, newUserRole, phone, preferredContact);
+        int userId = DatabaseHelper.insertUserAndReturnId(
+            firstName, lastName, email, dob, gender, newUserRole,
+            phone, preferredContact, address1, address2, postcode
+        );
+        
         boolean success = (userId != -1);
     
         // If it's a patient, also insert into patient table with doctor link

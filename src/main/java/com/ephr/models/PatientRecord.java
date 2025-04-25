@@ -15,8 +15,12 @@ public class PatientRecord {
     private String phoneNumber;
     private String preferredContact;
 
+    private String addressLine1;
+    private String addressLine2;
+    private String postcode;
+
     public PatientRecord(String firstName, String lastName, String email, String gender, String dateOfBirth,
-                         String nhsNumber, String status, boolean dataSharingConsent, boolean scrConsent, String phoneNumber, String preferredContact) {
+                         String nhsNumber, String status, boolean dataSharingConsent, boolean scrConsent, String phoneNumber, String preferredContact, String addressLine1, String addressLine2, String postcode) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -28,6 +32,9 @@ public class PatientRecord {
         this.scrConsent = scrConsent;
         this.phoneNumber = phoneNumber;
         this.preferredContact = preferredContact;
+        this.addressLine1 = addressLine1;
+        this.addressLine2 = addressLine2;
+        this.postcode = postcode;
     }
 
     public String getFirstName() { 
@@ -73,4 +80,17 @@ public class PatientRecord {
     public String getPreferredContact() {
         return preferredContact;
     }
+
+    public String getAddressLine1() { 
+        return addressLine1;
+    }
+    
+    public String getAddressLine2() {
+        return addressLine2;
+    }
+    
+    public String getPostcode() {
+        return postcode;
+    }
+
 }

@@ -47,6 +47,9 @@
                     <TableColumn fx:id="scrCol" text="SCR Consent"/>
                     <TableColumn fx:id="phoneCol" text="Phone Number"/>
                     <TableColumn fx:id="contactCol" text="Preferred Contact"/>
+                    <TableColumn fx:id="addressLine1Col" text="Address Line 1"/>
+                    <TableColumn fx:id="addressLine2Col" text="Address Line 2"/>
+                    <TableColumn fx:id="postcodeCol" text="Postcode"/>
                 </columns>
             </TableView>
 
@@ -98,6 +101,15 @@
 
                         <Label text="Preferred Contact:" GridPane.rowIndex="16" GridPane.columnIndex="0"/>
                         <ChoiceBox fx:id="contactChoiceBox" GridPane.rowIndex="16" GridPane.columnIndex="1"/>
+
+                        <Label text="Address Line 1:" GridPane.rowIndex="17" GridPane.columnIndex="0"/>
+                        <TextField fx:id="addressLine1Field" GridPane.rowIndex="17" GridPane.columnIndex="1"/>
+
+                        <Label text="Address Line 2:" GridPane.rowIndex="18" GridPane.columnIndex="0"/>
+                        <TextField fx:id="addressLine2Field" GridPane.rowIndex="18" GridPane.columnIndex="1"/>
+
+                        <Label text="Postcode:" GridPane.rowIndex="19" GridPane.columnIndex="0"/>
+                        <TextField fx:id="postcodeField" GridPane.rowIndex="19" GridPane.columnIndex="1"/>
 
                     </GridPane>
 
