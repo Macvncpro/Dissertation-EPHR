@@ -204,7 +204,7 @@ public class MainEPHRController {
             return;
         }
     
-        String dob = selectedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String dob = selectedDate.toString(); // This gives yyyy-MM-dd format
         String gender = genderChoiceBox.getValue();
         String newUserRole = roleChoiceBox.getValue();
     
