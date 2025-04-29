@@ -29,7 +29,10 @@
                         style="-fx-font-size: 16px; -fx-font-weight: bold;" />
                 </center>
                 <right>
-                    <Button fx:id="refreshButton" text="🔄 Refresh" onAction="#handleRefreshTable" visible="false"/>
+                    <HBox spacing="10">
+                        <Button fx:id="deleteButton" text="Delete" onAction="#handleDeletePatient" visible="false"/>
+                        <Button fx:id="refreshButton" text="🔄 Refresh" onAction="#handleRefreshTable" visible="false"/>
+                    </HBox>
                 </right>
             </BorderPane>
 

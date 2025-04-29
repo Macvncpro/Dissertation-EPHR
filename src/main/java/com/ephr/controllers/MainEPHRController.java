@@ -37,6 +37,7 @@ public class MainEPHRController {
     @FXML private TableView<PatientRecord> patientTable;
 
     @FXML private Button refreshButton;
+    @FXML private Button deleteButton;
     @FXML private TableColumn<PatientRecord, String> firstNameCol;
     @FXML private TableColumn<PatientRecord, String> lastNameCol;
     @FXML private TableColumn<PatientRecord, String> emailCol;
@@ -161,6 +162,29 @@ public class MainEPHRController {
     }
 
     @FXML
+    private void handleDeletePatient() {
+        PatientRecord selected = patientTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Please select a patient to delete.", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to delete this patient?", ButtonType.YES, ButtonType.NO);
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                boolean success = DatabaseHelper.deletePatientByEmail(selected.getEmail());
+                if (success) {
+                    handleRefreshTable();
+                } else {
+                    Alert error = new Alert(Alert.AlertType.ERROR, "Failed to delete the patient.", ButtonType.OK);
+                    error.showAndWait();
+                }
+            }
+        });
+    }
+
+    @FXML
     private void handleRefreshTable() {
         loadAndShowPatientTable();
     }
@@ -189,6 +213,7 @@ public class MainEPHRController {
         patientTable.setVisible(true);
         recordsLabel.setVisible(true);
         refreshButton.setVisible(true);
+        deleteButton.setVisible(true);
     }
 
     @FXML

@@ -195,6 +195,48 @@ public class DatabaseHelper {
             e.printStackTrace();
         }
         return null;
-    }    
+    }
+
+    public static boolean deletePatientByEmail(String email) {
+        String getUserIdQuery = "SELECT id FROM users WHERE email = ?";
+        String deletePatientQuery = "DELETE FROM patient WHERE user_id = ?";
+        String deleteUserQuery = "DELETE FROM users WHERE id = ?";
+    
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            conn.setAutoCommit(false); // Start transaction
+    
+            try (PreparedStatement getUserIdStmt = conn.prepareStatement(getUserIdQuery)) {
+                getUserIdStmt.setString(1, email);
+                ResultSet rs = getUserIdStmt.executeQuery();
+    
+                if (!rs.next()) return false; // No user found
+    
+                int userId = rs.getInt("id");
+    
+                try (
+                    PreparedStatement deletePatientStmt = conn.prepareStatement(deletePatientQuery);
+                    PreparedStatement deleteUserStmt = conn.prepareStatement(deleteUserQuery)
+                ) {
+                    deletePatientStmt.setInt(1, userId);
+                    deleteUserStmt.setInt(1, userId);
+    
+                    deletePatientStmt.executeUpdate();
+                    deleteUserStmt.executeUpdate();
+    
+                    conn.commit();
+                    return true;
+                }
+            } catch (SQLException ex) {
+                conn.rollback();
+                ex.printStackTrace();
+                return false;
+            }
+    
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
 
 }
