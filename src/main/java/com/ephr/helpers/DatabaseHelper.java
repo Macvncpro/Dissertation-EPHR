@@ -158,7 +158,7 @@ public class DatabaseHelper {
     }
 
     public static boolean insertPatientDetails(int userId, String nhsNumber, String status, Integer doctorId, boolean dataSharing, boolean scrConsent) {
-        String query = "INSERT INTO patient (user_id, nhs_number, status, assigned_gp_id, data_sharing_consent, scr_consent, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))";
+        String query = "INSERT INTO patient (user_id, nhs_number, status, assigned_doctor_id, data_sharing_consent, scr_consent, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))";
     
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement stmt = conn.prepareStatement(query)) {
