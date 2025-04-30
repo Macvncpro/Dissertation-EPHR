@@ -36,8 +36,9 @@ public class Main extends Application {
     
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(true); //  Makes window full screen on launch
         primaryStage.show();
-        primaryStage.centerOnScreen();
+        
     }
     
 }

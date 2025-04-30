@@ -1,128 +1,136 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.ephr.controllers.MainEPHRController"
-            prefWidth="1000" prefHeight="700">
+            stylesheets="@../css/MainEPHR.css">
 
-    <!-- Top: Navigation Bar -->
-    <top>
-        <HBox spacing="10" style="-fx-background-color: #2a9df4; -fx-padding: 10;">
-            <Button text="Appointments" fx:id="appointmentsButton"/>
-            <Button text="Reports" fx:id="reportsButton"/>
-            <Button text="Prescriptions" fx:id="prescriptionsButton"/>
-            <Button text="Logout" onAction="#handleLogout" style="-fx-background-color: red; -fx-text-fill: white;" />
-        </HBox>
-    </top>
+    <!-- Sidebar Navigation -->
+    <left>
+        <VBox spacing="20" alignment="TOP_CENTER" style="-fx-background-color: #2C3E50; -fx-padding: 20;">
+            <Label text="EPHR" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
+            <Button text="🏠 Dashboard" fx:id="dashboardButton" styleClass="sidebar-button" />
+            <Button text="📄 Records" fx:id="recordsButton" styleClass="sidebar-button" />
+            <Button text="📅 Appointments" fx:id="appointmentsButton" styleClass="sidebar-button" />
+            <Button text="💊 Prescriptions" fx:id="prescriptionsButton" styleClass="sidebar-button" />
+            <Button text="📝 Reports" fx:id="reportsButton" styleClass="sidebar-button" />
+            <Button text="🚪 Logout" fx:id="logoutButton" styleClass="sidebar-button" onAction="#handleLogout"/>
+        </VBox>
+    </left>
 
-    <!-- Center: Main Content Area -->
+    <!-- Main Content -->
     <center>
         <VBox spacing="15" alignment="TOP_CENTER" style="-fx-padding: 20;">
+            <Label text="📋 Patient Records" styleClass="header-label" fx:id="recordsLabel" />
 
-            <!-- 📋 Patient Records Table -->
-            <BorderPane>
-                <center>
-                    <Label text="All Patient Records" fx:id="recordsLabel" visible="false"
-                        style="-fx-font-size: 16px; -fx-font-weight: bold;" />
-                </center>
-                <right>
-                    <HBox spacing="10">
-                        <Button fx:id="deleteButton" text="Delete" onAction="#handleDeletePatient" visible="false"/>
-                        <Button fx:id="refreshButton" text="🔄 Refresh" onAction="#handleRefreshTable" visible="false"/>
-                    </HBox>
-                </right>
-            </BorderPane>
+            <HBox alignment="CENTER_RIGHT" spacing="10">
+                <Button text="🗑 Delete Selected" fx:id="deleteButton" onAction="#handleDeletePatient" />
+                <Button text="🔄 Refresh Records" fx:id="refreshButton" onAction="#handleRefreshTable"/>
+            </HBox>
 
-            <!-- Patient Details Table -->
-            <TableView fx:id="patientTable" visible="false" prefWidth="900" prefHeight="300">
+            <TableView fx:id="patientTable" prefHeight="400">
                 <columns>
-                    <TableColumn fx:id="firstNameCol" text="First Name"/>
-                    <TableColumn fx:id="lastNameCol" text="Last Name"/>
-                    <TableColumn fx:id="emailCol" text="Email"/>
-                    <TableColumn fx:id="genderCol" text="Gender"/>
-                    <TableColumn fx:id="dobCol" text="Date of Birth"/>
-                    <TableColumn fx:id="nhsCol" text="NHS Number"/>
-                    <TableColumn fx:id="statusCol" text="Status"/>
-                    <TableColumn fx:id="sharingCol" text="Data Sharing"/>
-                    <TableColumn fx:id="scrCol" text="SCR Consent"/>
-                    <TableColumn fx:id="phoneCol" text="Phone Number"/>
-                    <TableColumn fx:id="contactCol" text="Preferred Contact"/>
-                    <TableColumn fx:id="addressLine1Col" text="Address Line 1"/>
-                    <TableColumn fx:id="addressLine2Col" text="Address Line 2"/>
-                    <TableColumn fx:id="postcodeCol" text="Postcode"/>
+                    <TableColumn fx:id="firstNameCol" text="First Name" />
+                    <TableColumn fx:id="lastNameCol" text="Last Name" />
+                    <TableColumn fx:id="emailCol" text="Email" />
+                    <TableColumn fx:id="genderCol" text="Gender" />
+                    <TableColumn fx:id="dobCol" text="Date of Birth" />
+                    <TableColumn fx:id="nhsCol" text="NHS Number" />
+                    <TableColumn fx:id="statusCol" text="Status" />
+                    <TableColumn fx:id="sharingCol" text="Data Sharing" />
+                    <TableColumn fx:id="scrCol" text="SCR Consent" />
+                    <TableColumn fx:id="phoneCol" text="Phone" />
+                    <TableColumn fx:id="contactCol" text="Contact Method" />
+                    <TableColumn fx:id="addressLine1Col" text="Address Line 1" />
+                    <TableColumn fx:id="addressLine2Col" text="Address Line 2" />
+                    <TableColumn fx:id="postcodeCol" text="Postcode" />
                 </columns>
             </TableView>
 
-            <!-- Add User Section -->
-            <TitledPane fx:id="addUserPane" text="Add New User" expanded="false" animated="true">
-                <ScrollPane fitToWidth="true" prefHeight="280" hbarPolicy="NEVER">
-                    <VBox spacing="10" alignment="TOP_CENTER" style="-fx-padding: 10;">
-                        <GridPane hgap="10" vgap="10">
-                            <columnConstraints>
-                                <ColumnConstraints halignment="RIGHT"/>
-                                <ColumnConstraints prefWidth="200"/>
-                            </columnConstraints>
-
-                        <Label text="First Name:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                        <TextField fx:id="firstNameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-
-                        <Label text="Last Name:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                        <TextField fx:id="lastNameField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-
-                        <Label text="Email:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                        <TextField fx:id="emailField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-
-                        <Label text="DOB:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                        <DatePicker fx:id="dobPicker" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-
-                        <Label text="Gender:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                        <ChoiceBox fx:id="genderChoiceBox" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-
-                        <Label text="Role:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                        <ChoiceBox fx:id="roleChoiceBox" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
-
-                        <Label text="Assigned Doctor:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
-                        <ChoiceBox fx:id="doctorChoiceBox" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
-
-                        <Label text="NHS Number:" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
-                        <TextField fx:id="nhsNumberField" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
-
-                        <Label text="Patient Status:" GridPane.rowIndex="12" GridPane.columnIndex="0"/>
-                        <ChoiceBox fx:id="statusChoiceBox" GridPane.rowIndex="12" GridPane.columnIndex="1"/>
-
-                        <Label text="Data Sharing Consent:" GridPane.rowIndex="13" GridPane.columnIndex="0"/>
-                        <ChoiceBox fx:id="dataSharingChoiceBox" GridPane.rowIndex="13" GridPane.columnIndex="1"/>
-
-                        <Label text="SCR Consent:" GridPane.rowIndex="14" GridPane.columnIndex="0"/>
-                        <ChoiceBox fx:id="scrConsentChoiceBox" GridPane.rowIndex="14" GridPane.columnIndex="1"/>
-
-                        <Label text="Phone Number:" GridPane.rowIndex="15" GridPane.columnIndex="0"/>
-                        <TextField fx:id="phoneField" GridPane.rowIndex="15" GridPane.columnIndex="1"/>
-
-                        <Label text="Preferred Contact:" GridPane.rowIndex="16" GridPane.columnIndex="0"/>
-                        <ChoiceBox fx:id="contactChoiceBox" GridPane.rowIndex="16" GridPane.columnIndex="1"/>
-
-                        <Label text="Address Line 1:" GridPane.rowIndex="17" GridPane.columnIndex="0"/>
-                        <TextField fx:id="addressLine1Field" GridPane.rowIndex="17" GridPane.columnIndex="1"/>
-
-                        <Label text="Address Line 2:" GridPane.rowIndex="18" GridPane.columnIndex="0"/>
-                        <TextField fx:id="addressLine2Field" GridPane.rowIndex="18" GridPane.columnIndex="1"/>
-
-                        <Label text="Postcode:" GridPane.rowIndex="19" GridPane.columnIndex="0"/>
-                        <TextField fx:id="postcodeField" GridPane.rowIndex="19" GridPane.columnIndex="1"/>
-
-                    </GridPane>
-
-                    <Button text="Create User" onAction="#handleCreateUser"/>
-                    <Label fx:id="formStatusLabel" style="-fx-text-fill: red;"/>
-                    </VBox>
-                </ScrollPane>
+            <TitledPane fx:id="addUserPane" text="➕ Add New User" expanded="false">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <HBox spacing="10">
+                        <VBox spacing="5">
+                            <Label text="First Name" />
+                            <TextField fx:id="firstNameField" />
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Last Name" />
+                            <TextField fx:id="lastNameField" />
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Email" />
+                            <TextField fx:id="emailField" />
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="10">
+                        <VBox spacing="5">
+                            <Label text="Date of Birth" />
+                            <DatePicker fx:id="dobPicker" />
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Gender" />
+                            <ChoiceBox fx:id="genderChoiceBox" />
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Role" />
+                            <ChoiceBox fx:id="roleChoiceBox" />
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="10">
+                        <VBox spacing="5">
+                            <Label text="NHS Number" />
+                            <TextField fx:id="nhsNumberField" />
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Status" />
+                            <ChoiceBox fx:id="statusChoiceBox" />
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Data Sharing" />
+                            <ChoiceBox fx:id="dataSharingChoiceBox" />
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="SCR Consent" />
+                            <ChoiceBox fx:id="scrConsentChoiceBox" />
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="10">
+                        <VBox spacing="5">
+                            <Label text="Assigned Doctor" />
+                            <ChoiceBox fx:id="doctorChoiceBox" />
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Phone" />
+                            <TextField fx:id="phoneField" />
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Contact Method" />
+                            <ChoiceBox fx:id="contactChoiceBox" />
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="10">
+                        <VBox spacing="5">
+                            <Label text="Address Line 1" />
+                            <TextField fx:id="addressLine1Field" />
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Address Line 2" />
+                            <TextField fx:id="addressLine2Field" />
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Postcode" />
+                            <TextField fx:id="postcodeField" />
+                        </VBox>
+                    </HBox>
+                    <Label fx:id="formStatusLabel" />
+                    <Button text="Create User" onAction="#handleCreateUser" />
+                </VBox>
             </TitledPane>
-
-
         </VBox>
     </center>
+
 </BorderPane>

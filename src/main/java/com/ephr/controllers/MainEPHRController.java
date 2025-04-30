@@ -36,6 +36,7 @@ public class MainEPHRController {
     @FXML private Label recordsLabel;
     @FXML private TableView<PatientRecord> patientTable;
 
+    @FXML private TextField searchField;
     @FXML private Button refreshButton;
     @FXML private Button deleteButton;
     @FXML private TableColumn<PatientRecord, String> firstNameCol;
@@ -160,6 +161,26 @@ public class MainEPHRController {
             default -> System.out.println("⚠ Unknown role: " + role);
         }
     }
+
+    @FXML
+    private void handleSearch() {
+        String searchTerm = searchField.getText().toLowerCase();
+
+        ObservableList<PatientRecord> allRecords = DatabaseHelper.getAllPatientRecords();
+        ObservableList<PatientRecord> filtered = FXCollections.observableArrayList();
+
+        for (PatientRecord record : allRecords) {
+            String fullName = (record.getFirstName() + " " + record.getLastName()).toLowerCase();
+            String dob = record.getDateOfBirth().toLowerCase();
+
+            if (fullName.contains(searchTerm) || dob.contains(searchTerm)) {
+                filtered.add(record);
+            }
+        }
+
+        patientTable.setItems(filtered);
+    }
+
 
     @FXML
     private void handleDeletePatient() {
