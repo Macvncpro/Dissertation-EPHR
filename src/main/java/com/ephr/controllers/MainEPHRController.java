@@ -168,8 +168,8 @@ public class MainEPHRController {
     }
     
     private void showDoctorView() {
-        setNodeVisibility(true, reportsButton, appointmentsButton, searchField, searchButton, refreshButton);
-        setNodeVisibility(false, prescriptionsButton, deleteButton);
+        setNodeVisibility(true, reportsButton, appointmentsButton, searchField, searchButton, refreshButton, prescriptionsButton);
+        setNodeVisibility(false, deleteButton);
     }
     
     private void showNurseView() {
