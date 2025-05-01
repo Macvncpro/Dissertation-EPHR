@@ -28,7 +28,7 @@
             <HBox spacing="10">
                 <Button text="➕ New Appointment" onAction="#handleNewAppointment" />
                 <Button text="🔄 Refresh" onAction="#handleRefresh" />
-                <Button text="❌ Delete Selected" onAction="#handleDelete" />
+                <Button text="❌ Cancel Selected" onAction="#handleCancel" />
             </HBox>
 
             <Label fx:id="statusLabel" />

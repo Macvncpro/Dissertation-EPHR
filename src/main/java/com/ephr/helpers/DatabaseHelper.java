@@ -119,9 +119,10 @@ public class DatabaseHelper {
 
     public static ObservableList<Appointment> getAllAppointments() {
         ObservableList<Appointment> appointments = FXCollections.observableArrayList();
-
+    
         String query = """
-            SELECT 
+            SELECT
+                p.id AS patient_id, 
                 pu.first_name || ' ' || pu.last_name AS patient_name,
                 du.first_name || ' ' || du.last_name AS doctor_name,
                 a.appointment_date,
@@ -133,29 +134,30 @@ public class DatabaseHelper {
             JOIN users du ON d.user_id = du.id
             ORDER BY a.appointment_date DESC
         """;
-
+    
         try (Connection conn = DriverManager.getConnection(DB_URL);
-            PreparedStatement stmt = conn.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery()) {
-
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+    
             while (rs.next()) {
+                int patientId = rs.getInt("patient_id"); // ✅ correct field
                 String patientName = rs.getString("patient_name");
                 String doctorName = rs.getString("doctor_name");
                 String dateTime = rs.getString("appointment_date");
-                String[] parts = dateTime.split("T| "); // handle either ISO or space format
+                String[] parts = dateTime.split("T| ");
                 String date = parts[0];
                 String time = (parts.length > 1) ? parts[1] : "";
                 String status = rs.getString("status");
-
-                appointments.add(new Appointment(patientName, doctorName, date, time, status));
+    
+                appointments.add(new Appointment(patientId, patientName, doctorName, date, time, status));
             }
-
+    
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
+    
         return appointments;
-    }
+    }    
 
     public static int insertUserAndReturnId(String firstName, String lastName, String email,
                                             String dob, String gender, String role,
@@ -278,6 +280,23 @@ public class DatabaseHelper {
             return false;
         }
     }
+
+    public static boolean updateAppointmentStatus(Appointment appt, String newStatus) {
+        String query = "UPDATE appointment SET status = ?, updated_at = datetime('now') WHERE appointment_date = ? AND patient_id = (SELECT id FROM patient WHERE user_id = ?)";
+    
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+    
+            stmt.setString(1, newStatus);
+            stmt.setString(2, appt.getDate() + " " + appt.getTime());
+            stmt.setInt(3, appt.getPatientId());  // You'll need patientId in your Appointment model
+            return stmt.executeUpdate() > 0;
+    
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }    
     
 
 }

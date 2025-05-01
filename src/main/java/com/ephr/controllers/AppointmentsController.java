@@ -20,7 +20,7 @@ public class AppointmentsController {
 
     @FXML
     private void initialize() {
-        
+
         appointmentTable.setRowFactory(table -> new TableRow<>() {
             @Override
             protected void updateItem(Appointment appt, boolean empty) {
@@ -87,15 +87,20 @@ public class AppointmentsController {
     }
 
     @FXML
-    private void handleDelete() {
+    private void handleCancel() {
         Appointment selected = appointmentTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            statusLabel.setText("❌ No appointment selected.");
+            statusLabel.setText("❌ Select an appointment to cancel.");
             return;
         }
-        appointmentTable.getItems().remove(selected);
-        statusLabel.setText("🗑 Appointment removed (not yet from DB).");
-    }
 
+        boolean updated = DatabaseHelper.updateAppointmentStatus(selected, "cancelled");
+        if (updated) {
+            loadAppointments(statusFilterBox.getValue());
+            statusLabel.setText("✅ Appointment cancelled.");
+        } else {
+            statusLabel.setText("❌ Failed to cancel appointment.");
+        }
+    }
     
 }
