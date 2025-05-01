@@ -16,6 +16,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -150,43 +151,49 @@ public class MainEPHRController {
     }    
 
     private void applyPermissions() {
+        loadAndShowPatientTable();
+    
         switch (role.toLowerCase()) {
-            case "admin" -> {
-                // Show everything
-                loadAndShowPatientTable();
-            }
-            case "doctor" -> {
-                loadAndShowPatientTable();
-            }
-            case "nurse" -> {
-                loadAndShowPatientTable();
-                prescriptionsButton.setVisible(false);
-                prescriptionsButton.setManaged(false);
-            }
-            case "receptionist" -> {
-                loadAndShowPatientTable();
-                prescriptionsButton.setVisible(false);
-                prescriptionsButton.setManaged(false);
-                reportsButton.setVisible(false);
-                reportsButton.setManaged(false);
-            }
-            case "patient" -> {
-                recordsButton.setVisible(false);
-                recordsButton.setManaged(false);
-                appointmentsButton.setVisible(false);
-                appointmentsButton.setManaged(false);
-                searchField.setVisible(false);
-                searchField.setManaged(false);
-                searchButton.setVisible(false);
-                searchButton.setManaged(false);
-                deleteButton.setVisible(false);
-                deleteButton.setManaged(false);
-                refreshButton.setVisible(false);
-                refreshButton.setManaged(false);
-            }
+            case "admin" -> showAll();
+            case "doctor" -> showDoctorView();
+            case "nurse" -> showNurseView();
+            case "receptionist" -> showReceptionistView();
+            case "patient" -> showPatientView();
             default -> System.out.println("⚠ Unknown role: " + role);
         }
     }
+
+    private void showAll() {
+        setNodeVisibility(true, prescriptionsButton, reportsButton, appointmentsButton, searchField, searchButton, deleteButton, refreshButton);
+    }
+    
+    private void showDoctorView() {
+        setNodeVisibility(true, reportsButton, appointmentsButton, searchField, searchButton, refreshButton);
+        setNodeVisibility(false, prescriptionsButton, deleteButton);
+    }
+    
+    private void showNurseView() {
+        showDoctorView(); // reuse doctor view
+        prescriptionsButton.setVisible(false);
+        prescriptionsButton.setManaged(false);
+    }
+    
+    private void showReceptionistView() {
+        setNodeVisibility(true, appointmentsButton, searchField, searchButton, refreshButton);
+        setNodeVisibility(false, prescriptionsButton, reportsButton, deleteButton);
+    }
+    
+    private void showPatientView() {
+        setNodeVisibility(false, recordsButton, appointmentsButton, searchField, searchButton, deleteButton, refreshButton, patientTable);
+    }
+    
+    private void setNodeVisibility(boolean visible, Node... nodes) {
+        for (Node node : nodes) {
+            node.setVisible(visible);
+            node.setManaged(visible);
+        }
+    }    
+    
 
     @FXML
     private void handleSearch() {
