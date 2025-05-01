@@ -427,8 +427,4 @@ public class MainEPHRController {
         System.clearProperty("AUTH0_ID_TOKEN");
     }
 
-    @FXML
-    private void handleNavigation() {
-        System.out.println("Navigating to another section...");
-    }
 }
