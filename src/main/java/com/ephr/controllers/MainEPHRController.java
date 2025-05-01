@@ -29,15 +29,18 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 public class MainEPHRController {
 
+    @FXML private Button dashboardButton;
+    @FXML private Button recordsButton;
     @FXML private Button appointmentsButton;
-    @FXML private Button reportsButton;
     @FXML private Button prescriptionsButton;
+    @FXML private Button reportsButton;
     @FXML private Button logoutButton;
 
     @FXML private Label recordsLabel;
     @FXML private TableView<PatientRecord> patientTable;
 
     @FXML private TextField searchField;
+    @FXML private Button searchButton;
     @FXML private Button refreshButton;
     @FXML private Button deleteButton;
     @FXML private TableColumn<PatientRecord, String> firstNameCol;
@@ -150,14 +153,36 @@ public class MainEPHRController {
         switch (role.toLowerCase()) {
             case "admin" -> {
                 // Show everything
-            }
-            case "doctor", "nurse", "receptionist" -> {
                 loadAndShowPatientTable();
             }
-            case "patient" -> {
+            case "doctor" -> {
+                loadAndShowPatientTable();
+            }
+            case "nurse" -> {
+                loadAndShowPatientTable();
                 prescriptionsButton.setVisible(false);
+                prescriptionsButton.setManaged(false);
+            }
+            case "receptionist" -> {
+                loadAndShowPatientTable();
+                prescriptionsButton.setVisible(false);
+                prescriptionsButton.setManaged(false);
                 reportsButton.setVisible(false);
+                reportsButton.setManaged(false);
+            }
+            case "patient" -> {
+                recordsButton.setVisible(false);
+                recordsButton.setManaged(false);
                 appointmentsButton.setVisible(false);
+                appointmentsButton.setManaged(false);
+                searchField.setVisible(false);
+                searchField.setManaged(false);
+                searchButton.setVisible(false);
+                searchButton.setManaged(false);
+                deleteButton.setVisible(false);
+                deleteButton.setManaged(false);
+                refreshButton.setVisible(false);
+                refreshButton.setManaged(false);
             }
             default -> System.out.println("⚠ Unknown role: " + role);
         }
