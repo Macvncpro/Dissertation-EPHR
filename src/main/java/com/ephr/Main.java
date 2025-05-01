@@ -23,6 +23,8 @@ public class Main extends Application {
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Electronic Patient Health Record");
+        primaryStage.setWidth(400);    // fixed width
+        primaryStage.setHeight(700);   // fixed height
         primaryStage.show();
         primaryStage.centerOnScreen();
     }

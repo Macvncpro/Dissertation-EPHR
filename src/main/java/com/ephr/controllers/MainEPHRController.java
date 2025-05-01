@@ -31,6 +31,8 @@ import com.ephr.helpers.DatabaseHelper;
 import com.ephr.models.PatientRecord;
 
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 
 public class MainEPHRController {
 
@@ -79,6 +81,8 @@ public class MainEPHRController {
     @FXML private TextField addressLine1Field;
     @FXML private TextField addressLine2Field;
     @FXML private TextField postcodeField;
+
+    @FXML private AnchorPane contentArea;
 
     private String email;
     private String role;
@@ -434,18 +438,28 @@ public class MainEPHRController {
     }    
 
     @FXML
-    private void handleAppointmentsButton() {
+    private void handleDashboardButton() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Appointments.fxml"));
-            Parent root = loader.load();
-            Stage stage = new Stage();
-            stage.setTitle("Appointments");
-            stage.setScene(new Scene(root));
-            stage.show();
+            Main.showEPHRScreen(email, role); // Reloads MainEPHR.fxml using your Main.java logic
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }    
+
+    @FXML
+    private void handleAppointmentsButton() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Appointments.fxml"));
+            Node appointmentsView = loader.load();
+            contentArea.getChildren().setAll(appointmentsView);
+            AnchorPane.setTopAnchor(appointmentsView, 0.0);
+            AnchorPane.setBottomAnchor(appointmentsView, 0.0);
+            AnchorPane.setLeftAnchor(appointmentsView, 0.0);
+            AnchorPane.setRightAnchor(appointmentsView, 0.0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }    
     
     @FXML
     private void handleLogout(ActionEvent event) {
