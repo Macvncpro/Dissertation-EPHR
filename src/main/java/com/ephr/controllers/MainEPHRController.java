@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -217,7 +218,16 @@ public class MainEPHRController {
         lastNameCol.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
         genderCol.setCellValueFactory(new PropertyValueFactory<>("gender"));
-        dobCol.setCellValueFactory(new PropertyValueFactory<>("dateOfBirth"));
+        dobCol.setCellValueFactory(cellData -> {
+            String rawDate = cellData.getValue().getDateOfBirth();
+            try {
+                LocalDate parsedDate = LocalDate.parse(rawDate); // expects yyyy-MM-dd
+                String formatted = parsedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                return new ReadOnlyStringWrapper(formatted);
+            } catch (Exception e) {
+                return new ReadOnlyStringWrapper(rawDate); // fallback to raw if parsing fails
+            }
+        });
 
         nhsCol.setCellValueFactory(new PropertyValueFactory<>("nhsNumber"));
         statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));

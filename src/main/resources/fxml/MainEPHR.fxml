@@ -25,6 +25,10 @@
     <center>
         <VBox spacing="15" alignment="TOP_CENTER" style="-fx-padding: 20;">
             <Label text="📋 Patient Records" styleClass="header-label" fx:id="recordsLabel" />
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="searchField" promptText="Search by name or DOB..." onAction="#handleSearch" />
+                <Button text="🔍 Search" onAction="#handleSearch" />
+            </HBox>
 
             <HBox alignment="CENTER_RIGHT" spacing="10">
                 <Button text="🗑 Delete Selected" fx:id="deleteButton" onAction="#handleDeletePatient" />
