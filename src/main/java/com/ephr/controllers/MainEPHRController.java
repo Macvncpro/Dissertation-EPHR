@@ -16,10 +16,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 
 import com.ephr.Main;
 import com.ephr.helpers.Auth0Helper;
@@ -429,6 +433,20 @@ public class MainEPHRController {
    
     }    
 
+    @FXML
+    private void handleAppointmentsButton() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Appointments.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Appointments");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
     @FXML
     private void handleLogout(ActionEvent event) {
         System.out.println("Logging out...");

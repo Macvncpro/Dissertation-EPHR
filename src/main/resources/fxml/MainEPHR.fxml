@@ -14,7 +14,7 @@
             <Label text="EPHR" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
             <Button text="🏠 Dashboard" fx:id="dashboardButton" styleClass="sidebar-button" />
             <Button text="📄 Records" fx:id="recordsButton" styleClass="sidebar-button" />
-            <Button text="📅 Appointments" fx:id="appointmentsButton" styleClass="sidebar-button" />
+            <Button text="📅 Appointments" fx:id="appointmentsButton" styleClass="sidebar-button" onAction="#handleAppointmentsButton" />
             <Button text="💊 Prescriptions" fx:id="prescriptionsButton" styleClass="sidebar-button" />
             <Button text="📝 Reports" fx:id="reportsButton" styleClass="sidebar-button" />
             <Button text="🚪 Logout" fx:id="logoutButton" styleClass="sidebar-button" onAction="#handleLogout"/>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.ephr.controllers.AppointmentsController">
+    <children>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="📅 Appointments" style="-fx-font-size: 24px;" />
+
+            <ChoiceBox fx:id="statusFilterBox" onAction="#handleStatusFilter" />
+
+            <TableView fx:id="appointmentTable">
+                <columns>
+                    <TableColumn fx:id="patientNameCol" text="Patient" />
+                    <TableColumn fx:id="doctorNameCol" text="Doctor" />
+                    <TableColumn fx:id="dateCol" text="Date" />
+                    <TableColumn fx:id="timeCol" text="Time" />
+                    <TableColumn fx:id="statusCol" text="Status" />
+                </columns>
+            </TableView>
+
+            <HBox spacing="10">
+                <Button text="➕ New Appointment" onAction="#handleNewAppointment" />
+                <Button text="🔄 Refresh" onAction="#handleRefresh" />
+                <Button text="❌ Delete Selected" onAction="#handleDelete" />
+            </HBox>
+
+            <Label fx:id="statusLabel" />
+        </VBox>
+    </children>
+</AnchorPane>

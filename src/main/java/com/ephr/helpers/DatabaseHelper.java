@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import com.ephr.models.Appointment;
 import com.ephr.models.PatientRecord;
 
 import javafx.collections.FXCollections;
@@ -114,7 +115,47 @@ public class DatabaseHelper {
         }
     
         return list;
-    }    
+    }
+
+    public static ObservableList<Appointment> getAllAppointments() {
+        ObservableList<Appointment> appointments = FXCollections.observableArrayList();
+
+        String query = """
+            SELECT 
+                pu.first_name || ' ' || pu.last_name AS patient_name,
+                du.first_name || ' ' || du.last_name AS doctor_name,
+                a.appointment_date,
+                a.status
+            FROM appointment a
+            JOIN patient p ON a.patient_id = p.id
+            JOIN users pu ON p.user_id = pu.id
+            JOIN doctor d ON a.doctor_id = d.id
+            JOIN users du ON d.user_id = du.id
+            ORDER BY a.appointment_date DESC
+        """;
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                String patientName = rs.getString("patient_name");
+                String doctorName = rs.getString("doctor_name");
+                String dateTime = rs.getString("appointment_date");
+                String[] parts = dateTime.split("T| "); // handle either ISO or space format
+                String date = parts[0];
+                String time = (parts.length > 1) ? parts[1] : "";
+                String status = rs.getString("status");
+
+                appointments.add(new Appointment(patientName, doctorName, date, time, status));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return appointments;
+    }
 
     public static int insertUserAndReturnId(String firstName, String lastName, String email,
                                             String dob, String gender, String role,
