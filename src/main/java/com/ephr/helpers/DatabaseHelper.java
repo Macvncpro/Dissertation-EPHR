@@ -157,8 +157,33 @@ public class DatabaseHelper {
         }
     
         return appointments;
-    }    
+    }
 
+    public static boolean createAppointment(int patientId, int doctorId, String dateTime, String status, String reason, int duration, String type) {
+        String query = """
+            INSERT INTO appointment (patient_id, doctor_id, appointment_date, status, reason, duration_minutes, appointment_type, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+        """;
+    
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+    
+            stmt.setInt(1, patientId);
+            stmt.setInt(2, doctorId);
+            stmt.setString(3, dateTime);
+            stmt.setString(4, status);
+            stmt.setString(5, reason);
+            stmt.setInt(6, duration);
+            stmt.setString(7, type);
+    
+            return stmt.executeUpdate() > 0;
+    
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     public static int insertUserAndReturnId(String firstName, String lastName, String email,
                                             String dob, String gender, String role,
                                             String phone, String preferredContact,

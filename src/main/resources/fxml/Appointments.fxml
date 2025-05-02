@@ -15,7 +15,7 @@
 
             <ChoiceBox fx:id="statusFilterBox" onAction="#handleStatusFilter" />
 
-            <TableView fx:id="appointmentTable">
+            <TableView fx:id="appointmentTable" prefHeight="400" prefWidth="430">
                 <columns>
                     <TableColumn fx:id="patientNameCol" text="Patient" />
                     <TableColumn fx:id="doctorNameCol" text="Doctor" />
@@ -26,7 +26,41 @@
             </TableView>
 
             <HBox spacing="10">
-                <Button text="➕ New Appointment" onAction="#handleNewAppointment" />
+                <TitledPane text="➕ New Appointment" expanded="false">
+                    <VBox spacing="10" style="-fx-padding: 10;">
+                        <HBox spacing="10">
+                            <VBox spacing="5">
+                                <Label text="Patient" />
+                                <ChoiceBox fx:id="patientChoiceBox" />
+                            </VBox>
+                            <VBox spacing="5">
+                                <Label text="Doctor" />
+                                <ChoiceBox fx:id="doctorChoiceBox" />
+                            </VBox>
+                        </HBox>
+                        <HBox spacing="10">
+                            <VBox spacing="5">
+                                <Label text="Date" />
+                                <DatePicker fx:id="datePicker" />
+                            </VBox>
+                            <VBox spacing="5">
+                                <Label text="Time (HH:MM)" />
+                                <TextField fx:id="timeField" promptText="e.g. 14:30" />
+                            </VBox>
+                        </HBox>
+                        <VBox spacing="5">
+                            <Label text="Reason" />
+                            <TextField fx:id="reasonField" />
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Type" />
+                            <ChoiceBox fx:id="typeChoiceBox" />
+                        </VBox>
+                        <Button text="Create Appointment" onAction="#handleCreateAppointment" />
+                        <Label fx:id="formStatusLabel" />
+                    </VBox>
+                </TitledPane>
+
                 <Button text="🔄 Refresh" onAction="#handleRefresh" />
                 <Button text="❌ Cancel Selected" onAction="#handleCancel" />
             </HBox>
