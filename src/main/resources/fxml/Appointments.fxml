@@ -12,20 +12,30 @@
             </padding>
 
             <Label text="📅 Appointments" style="-fx-font-size: 24px;" />
-
             <ChoiceBox fx:id="statusFilterBox" onAction="#handleStatusFilter" />
 
-            <TableView fx:id="appointmentTable" prefHeight="400" prefWidth="430">
-                <columns>
-                    <TableColumn fx:id="patientNameCol" text="Patient" />
-                    <TableColumn fx:id="doctorNameCol" text="Doctor" />
-                    <TableColumn fx:id="dateCol" text="Date" />
-                    <TableColumn fx:id="timeCol" text="Time" />
-                    <TableColumn fx:id="statusCol" text="Status" />
-                </columns>
-            </TableView>
+            <HBox spacing="20" alignment="TOP_LEFT">
+                <!-- Left: Appointment Table -->
+                <VBox spacing="10">
+                    <TableView fx:id="appointmentTable" prefHeight="400" prefWidth="600">
+                        <columns>
+                            <TableColumn fx:id="patientNameCol" text="Patient" />
+                            <TableColumn fx:id="doctorNameCol" text="Doctor" />
+                            <TableColumn fx:id="dateCol" text="Date" />
+                            <TableColumn fx:id="timeCol" text="Time" />
+                            <TableColumn fx:id="statusCol" text="Status" />
+                        </columns>
+                    </TableView>
 
-            <HBox spacing="10">
+                    <HBox spacing="10">
+                        <Button text="🔄 Refresh" onAction="#handleRefresh" />
+                        <Button text="❌ Cancel Selected" onAction="#handleCancel" />
+                    </HBox>
+
+                    <Label fx:id="statusLabel" />
+                </VBox>
+
+                <!-- Right: New Appointment Form -->
                 <TitledPane text="➕ New Appointment" expanded="false">
                     <VBox spacing="10" style="-fx-padding: 10;">
                         <HBox spacing="10">
@@ -44,8 +54,8 @@
                                 <DatePicker fx:id="datePicker" />
                             </VBox>
                             <VBox spacing="5">
-                                <Label text="Time (HH:MM)" />
-                                <TextField fx:id="timeField" promptText="e.g. 14:30" />
+                                <Label text="Time" />
+                                <ComboBox fx:id="timePickerBox" promptText="Select Time" />
                             </VBox>
                         </HBox>
                         <VBox spacing="5">
@@ -60,12 +70,7 @@
                         <Label fx:id="formStatusLabel" />
                     </VBox>
                 </TitledPane>
-
-                <Button text="🔄 Refresh" onAction="#handleRefresh" />
-                <Button text="❌ Cancel Selected" onAction="#handleCancel" />
             </HBox>
-
-            <Label fx:id="statusLabel" />
         </VBox>
     </children>
 </AnchorPane>

@@ -31,7 +31,7 @@ public class AppointmentsController {
     @FXML private ChoiceBox<String> patientChoiceBox;
     @FXML private ChoiceBox<String> doctorChoiceBox;
     @FXML private DatePicker datePicker;
-    @FXML private TextField timeField;
+    @FXML private ComboBox<String> timePickerBox;
     @FXML private TextField reasonField;
     @FXML private ChoiceBox<String> typeChoiceBox;
     @FXML private Label formStatusLabel;
@@ -78,6 +78,15 @@ public class AppointmentsController {
         typeChoiceBox.setValue("face_to_face");
 
         loadPatientAndDoctorChoices();
+
+        ObservableList<String> timeOptions = FXCollections.observableArrayList();
+        for (int hour = 0; hour < 24; hour++) {
+            for (int min = 0; min < 60; min += 15) {
+                timeOptions.add(String.format("%02d:%02d", hour, min));
+            }
+        }
+        timePickerBox.setItems(timeOptions);
+
     }
 
     private void loadAppointments(String statusFilter) {
@@ -148,7 +157,7 @@ public class AppointmentsController {
     private void handleCreateAppointment() {
         String patientName = patientChoiceBox.getValue();
         String doctorName = doctorChoiceBox.getValue();
-        String time = timeField.getText();
+        String time = timePickerBox.getValue();
         LocalDate date = datePicker.getValue();
         String reason = reasonField.getText();
         String type = typeChoiceBox.getValue();
