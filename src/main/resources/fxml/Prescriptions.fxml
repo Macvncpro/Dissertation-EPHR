@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.ephr.controllers.PrescriptionsController">
+    <VBox spacing="10" prefWidth="800" prefHeight="600" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+        <!-- Title -->
+        <Label text="Prescriptions" style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
+
+        <!-- Table Section -->
+        <TableView fx:id="prescriptionsTable" prefHeight="300">
+            <columns>
+                <TableColumn fx:id="medicationCol" text="Medication"/>
+                <TableColumn fx:id="dosageCol" text="Dosage"/>
+                <TableColumn fx:id="instructionsCol" text="Instructions"/>
+                <TableColumn fx:id="startDateCol" text="Start Date"/>
+                <TableColumn fx:id="endDateCol" text="End Date"/>
+                <TableColumn fx:id="typeCol" text="Type"/>
+            </columns>
+        </TableView>
+
+        <!-- Form Section -->
+        <TitledPane text="Add Prescription" expanded="false">
+            <VBox spacing="10">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+
+                <GridPane hgap="10" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="20"/>
+                        <ColumnConstraints percentWidth="30"/>
+                        <ColumnConstraints percentWidth="20"/>
+                        <ColumnConstraints percentWidth="30"/>
+                    </columnConstraints>
+
+                    <Label text="Patient:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <ChoiceBox fx:id="patientChoiceBox" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                    <Label text="Doctor:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                    <ChoiceBox fx:id="doctorChoiceBox" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+                    <Label text="Medication:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <ChoiceBox fx:id="medicationChoiceBox" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <Label text="Dosage:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                    <TextField fx:id="dosageField" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+
+                    <Label text="Start Date:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <DatePicker fx:id="startDatePicker" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                    <Label text="End Date:" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+                    <DatePicker fx:id="endDatePicker" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+
+                    <Label text="Instructions:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                    <TextArea fx:id="instructionsArea" prefRowCount="2" wrapText="true" GridPane.rowIndex="3" GridPane.columnIndex="1" GridPane.columnSpan="3"/>
+
+                    <Label text="Type:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                    <ChoiceBox fx:id="typeChoiceBox" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                    <Button text="Add Prescription" onAction="#handleAddPrescription" GridPane.rowIndex="4" GridPane.columnIndex="3"/>
+                </GridPane>
+                <Label fx:id="formStatusLabel" style="-fx-text-fill: red;"/>
+            </VBox>
+        </TitledPane>
+
+        <!-- Refresh -->
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Button text="🔄 Refresh Table" onAction="#handleRefresh"/>
+        </HBox>
+    </VBox>
+</AnchorPane>
