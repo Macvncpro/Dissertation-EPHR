@@ -18,12 +18,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import javafx.stage.Stage;
 
 import com.ephr.Main;
 import com.ephr.helpers.Auth0Helper;
@@ -32,15 +29,14 @@ import com.ephr.models.PatientRecord;
 
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
 
 public class MainEPHRController {
 
     @FXML private Button dashboardButton;
-    @FXML private Button recordsButton;
-    @FXML private Button appointmentsButton;
+    @FXML private Button medicalHistoryButton;
     @FXML private Button prescriptionsButton;
-    @FXML private Button reportsButton;
+    @FXML private Button diagnosticReportsButton;
+    @FXML private Button appointmentsButton;
     @FXML private Button logoutButton;
 
     @FXML private Label recordsLabel;
@@ -172,11 +168,29 @@ public class MainEPHRController {
     }
 
     private void showAll() {
-        setNodeVisibility(true, prescriptionsButton, reportsButton, appointmentsButton, searchField, searchButton, deleteButton, refreshButton);
+        setNodeVisibility(
+            true,
+            medicalHistoryButton,
+            prescriptionsButton,
+            diagnosticReportsButton,
+            appointmentsButton,
+            searchField,
+            searchButton,
+            deleteButton,
+            refreshButton
+        );
     }
     
     private void showDoctorView() {
-        setNodeVisibility(true, reportsButton, appointmentsButton, searchField, searchButton, refreshButton, prescriptionsButton);
+        setNodeVisibility(
+            true,
+            diagnosticReportsButton,
+            prescriptionsButton,
+            appointmentsButton,
+            searchField,
+            searchButton,
+            refreshButton
+        );
         setNodeVisibility(false, deleteButton);
     }
     
@@ -187,12 +201,29 @@ public class MainEPHRController {
     }
     
     private void showReceptionistView() {
-        setNodeVisibility(true, appointmentsButton, searchField, searchButton, refreshButton);
-        setNodeVisibility(false, prescriptionsButton, reportsButton, deleteButton);
+        setNodeVisibility(
+            true,
+            appointmentsButton,
+            searchField,
+            searchButton,
+            refreshButton
+        );
+        setNodeVisibility(false, prescriptionsButton, diagnosticReportsButton, deleteButton);
     }
     
     private void showPatientView() {
-        setNodeVisibility(false, recordsButton, appointmentsButton, searchField, searchButton, deleteButton, refreshButton, patientTable);
+        setNodeVisibility(
+            false,
+            medicalHistoryButton,
+            prescriptionsButton,
+            diagnosticReportsButton,
+            appointmentsButton,
+            searchField,
+            searchButton,
+            deleteButton,
+            refreshButton,
+            patientTable
+        );
     }
     
     private void setNodeVisibility(boolean visible, Node... nodes) {
@@ -200,8 +231,7 @@ public class MainEPHRController {
             node.setVisible(visible);
             node.setManaged(visible);
         }
-    }    
-    
+    }
 
     @FXML
     private void handleSearch() {
@@ -448,18 +478,38 @@ public class MainEPHRController {
 
     @FXML
     private void handleAppointmentsButton() {
+        loadContent("/fxml/Appointments.fxml");
+    }
+
+    @FXML
+    private void handleMedicalHistoryButton() {
+        loadContent("/fxml/MedicalHistory.fxml");
+    }
+
+    @FXML
+    private void handlePrescriptionsButton() {
+        loadContent("/fxml/Prescriptions.fxml");
+    }
+
+    @FXML
+    private void handleDiagnosticReportsButton() {
+        loadContent("/fxml/DiagnosticReports.fxml");
+    }
+
+    private void loadContent(String fxmlPath) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Appointments.fxml"));
-            Node appointmentsView = loader.load();
-            contentArea.getChildren().setAll(appointmentsView);
-            AnchorPane.setTopAnchor(appointmentsView, 0.0);
-            AnchorPane.setBottomAnchor(appointmentsView, 0.0);
-            AnchorPane.setLeftAnchor(appointmentsView, 0.0);
-            AnchorPane.setRightAnchor(appointmentsView, 0.0);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Node view = loader.load();
+            contentArea.getChildren().setAll(view);
+            AnchorPane.setTopAnchor(view, 0.0);
+            AnchorPane.setBottomAnchor(view, 0.0);
+            AnchorPane.setLeftAnchor(view, 0.0);
+            AnchorPane.setRightAnchor(view, 0.0);
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }    
+    }
+
     
     @FXML
     private void handleLogout(ActionEvent event) {

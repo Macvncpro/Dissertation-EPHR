@@ -12,13 +12,12 @@
     <!-- Sidebar Navigation -->
     <left>
         <VBox spacing="20" alignment="TOP_CENTER" style="-fx-background-color: #2C3E50; -fx-padding: 20;">
-            <Label text="EPHR" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
             <Button text="🏠 Dashboard" onAction="#handleDashboardButton" fx:id="dashboardButton" styleClass="sidebar-button" />
-            <Button text="📄 Records" fx:id="recordsButton" styleClass="sidebar-button" />
-            <Button text="📅 Appointments" fx:id="appointmentsButton" styleClass="sidebar-button" onAction="#handleAppointmentsButton" />
-            <Button text="💊 Prescriptions" fx:id="prescriptionsButton" styleClass="sidebar-button" />
-            <Button text="📝 Reports" fx:id="reportsButton" styleClass="sidebar-button" />
-            <Button text="🚪 Logout" fx:id="logoutButton" styleClass="sidebar-button" onAction="#handleLogout"/>
+            <Button text="📂 Medical History" onAction="#handleMedicalHistoryButton" fx:id="medicalHistoryButton" styleClass="sidebar-button" />
+            <Button text="💊 Prescriptions" onAction="#handlePrescriptionsButton" fx:id="prescriptionsButton" styleClass="sidebar-button" />
+            <Button text="🧪 Diagnostic Reports" onAction="#handleDiagnosticReportsButton" fx:id="diagnosticReportsButton" styleClass="sidebar-button" />
+            <Button text="📅 Appointments" onAction="#handleAppointmentsButton" fx:id="appointmentsButton" styleClass="sidebar-button" />
+            <Button text="🚪 Logout" onAction="#handleLogout" fx:id="logoutButton" styleClass="sidebar-button" />
         </VBox>
     </left>
 
