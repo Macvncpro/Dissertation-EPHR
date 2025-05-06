@@ -249,21 +249,34 @@ public class DatabaseHelper {
         }
     }
     
-
-    public static Integer getDoctorIdByUserId(int userId) {
-        String query = "SELECT id FROM doctor WHERE user_id = ?";
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, userId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("id");
+    public static Integer getDoctorIdByEmail(String email) {
+        String getUserQuery = "SELECT id FROM users WHERE email = ? AND role = 'doctor'";
+        String getDoctorQuery = "SELECT id FROM doctor WHERE user_id = ?";
+    
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:src/main/resources/database/users.db")) {
+            try (PreparedStatement userStmt = conn.prepareStatement(getUserQuery)) {
+                userStmt.setString(1, email);
+                ResultSet userRs = userStmt.executeQuery();
+    
+                if (userRs.next()) {
+                    int userId = userRs.getInt("id");
+    
+                    try (PreparedStatement doctorStmt = conn.prepareStatement(getDoctorQuery)) {
+                        doctorStmt.setInt(1, userId);
+                        ResultSet doctorRs = doctorStmt.executeQuery();
+    
+                        if (doctorRs.next()) {
+                            return doctorRs.getInt("id");
+                        }
+                    }
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
-    }
+    
+        return null; // not found
+    }    
 
     public static boolean deletePatientByEmail(String email) {
         String getUserIdQuery = "SELECT id FROM users WHERE email = ?";

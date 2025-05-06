@@ -18,6 +18,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -402,8 +403,7 @@ public class MainEPHRController {
     
             String selectedDoctor = doctorChoiceBox.getValue();
             if (selectedDoctor != null && doctorMap.containsKey(selectedDoctor)) {
-                int selectedDoctorUserId = doctorMap.get(selectedDoctor);
-                doctorId = DatabaseHelper.getDoctorIdByUserId(selectedDoctorUserId);
+                doctorId = DatabaseHelper.getDoctorIdByEmail(email);
             }
             
     
@@ -482,7 +482,7 @@ public class MainEPHRController {
     }
 
     @FXML
-    private void handleMedicalHistoryButton() {
+    private void handleMedicalHistoryButton() throws IOException {
         loadContent("/fxml/MedicalHistory.fxml");
     }
 

@@ -30,9 +30,10 @@ public class MedicalHistoryController {
     @FXML private Button addButton;
     @FXML private Label formStatusLabel;
     @FXML private ChoiceBox<String> patientChoiceBox;
+    @FXML private ChoiceBox<String> doctorChoiceBox;
 
-    private Map<String, Integer> patientMap = new HashMap<>();
-    private int doctorId = -1;
+    private final Map<String, Integer> patientMap = new HashMap<>();
+    private final Map<String, Integer> doctorMap = new HashMap<>();
 
     private final String DB_URL = "jdbc:sqlite:src/main/resources/database/users.db";
 
@@ -52,18 +53,15 @@ public class MedicalHistoryController {
         statusChoiceBox.setValue("active");
         severityChoiceBox.setValue("moderate");
 
-        loadMedicalHistory();
         loadPatientChoices();
-    }
-
-    public void setDoctorId(int id) {
-        this.doctorId = id;
+        loadDoctorChoices();
+        loadMedicalHistory();
     }
 
     @FXML
     private void handleRefreshTable() {
         loadMedicalHistory();
-    }
+    }    
 
     private void loadPatientChoices() {
         patientMap.clear();
@@ -88,6 +86,35 @@ public class MedicalHistoryController {
             }
 
             patientChoiceBox.setItems(patientNames);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadDoctorChoices() {
+        doctorMap.clear();
+        ObservableList<String> doctorNames = FXCollections.observableArrayList();
+
+        String query = """
+            SELECT d.id AS doctor_id, u.first_name || ' ' || u.last_name AS name
+            FROM doctor d
+            JOIN users u ON d.user_id = u.id
+            ORDER BY name
+        """;
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                int doctorId = rs.getInt("doctor_id");
+                String name = rs.getString("name");
+                doctorMap.put(name, doctorId);
+                doctorNames.add(name);
+            }
+
+            doctorChoiceBox.setItems(doctorNames);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -135,22 +162,21 @@ public class MedicalHistoryController {
         String severity = severityChoiceBox.getValue();
         String notes = notesArea.getText().trim();
 
-        // Validate inputs
-        if (condition.isEmpty() || diagnosisDate == null || treatment.isEmpty()
-                || status == null || severity == null || doctorId == -1) {
-            formStatusLabel.setText("❌ Please fill all required fields.");
-            return;
-        }
-
         String selectedPatient = patientChoiceBox.getValue();
+        String selectedDoctor = doctorChoiceBox.getValue();
+
         if (selectedPatient == null || !patientMap.containsKey(selectedPatient)) {
             formStatusLabel.setText("❌ Please select a patient.");
             return;
         }
 
-        int patientId = patientMap.get(selectedPatient);
+        if (selectedDoctor == null || !doctorMap.containsKey(selectedDoctor)) {
+            formStatusLabel.setText("❌ Please select a doctor.");
+            return;
+        }
 
-        System.out.println("Doctor ID = " + doctorId);
+        int patientId = patientMap.get(selectedPatient);
+        int doctorId = doctorMap.get(selectedDoctor);
 
         String insert = """
             INSERT INTO medical_history (patient_id, doctor_id, condition, diagnosis_date, treatment, status, severity, notes, created_at, updated_at)
@@ -194,5 +220,6 @@ public class MedicalHistoryController {
         statusChoiceBox.setValue("active");
         severityChoiceBox.setValue("moderate");
         notesArea.clear();
+        doctorChoiceBox.setValue(null);
     }
 }
