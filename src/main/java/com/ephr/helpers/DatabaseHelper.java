@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import com.ephr.models.Appointment;
+import com.ephr.models.DiagnosticReport;
 import com.ephr.models.PatientRecord;
 
 import javafx.collections.FXCollections;
@@ -247,6 +248,32 @@ public class DatabaseHelper {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static ObservableList<DiagnosticReport> getAllDiagnosticReports() {
+        ObservableList<DiagnosticReport> list = FXCollections.observableArrayList();
+        String query = "SELECT * FROM diagnostic_report";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(new DiagnosticReport(
+                    rs.getInt("id"),
+                    rs.getInt("patient_id"),
+                    rs.getInt("doctor_id"),
+                    rs.getString("report_type"),
+                    rs.getString("file_path"),
+                    rs.getString("report_date"),
+                    rs.getString("comments")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
     
     public static Integer getDoctorIdByEmail(String email) {

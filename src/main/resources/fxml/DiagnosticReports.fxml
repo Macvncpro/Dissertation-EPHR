@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.ephr.controllers.DiagnosticReportsController">
+    <children>
+        <ScrollPane fitToWidth="true" fitToHeight="true" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+            <content>
+                <VBox spacing="10" fillWidth="true">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <Label text="🩺 Diagnostic Reports" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+
+                    <TableView fx:id="reportTable" VBox.vgrow="ALWAYS" prefHeight="500" maxHeight="500">
+                        <columns>
+                            <TableColumn fx:id="reportTypeCol" text="Report Type" prefWidth="150"/>
+                            <TableColumn fx:id="filePathCol" text="File Path" prefWidth="300"/>
+                            <TableColumn fx:id="reportDateCol" text="Date" prefWidth="150"/>
+                            <TableColumn fx:id="commentsCol" text="Comments" prefWidth="400"/>
+                        </columns>
+                    </TableView>
+
+                    <HBox spacing="10">
+                        <Button text="🔄 Refresh" onAction="#initialize" />
+                        <Button text="📂 Open Selected File" onAction="#handleOpenFile" />
+                    </HBox>
+
+                    <TitledPane text="➕ Add Diagnostic Report" expanded="true">
+                        <VBox spacing="10" style="-fx-padding: 10;">
+                            <HBox spacing="10">
+                                <VBox spacing="5">
+                                    <Label text="Patient" />
+                                    <ChoiceBox fx:id="patientChoiceBox" />
+                                </VBox>
+                                <VBox spacing="5">
+                                    <Label text="Doctor" />
+                                    <ChoiceBox fx:id="doctorChoiceBox" />
+                                </VBox>
+                            </HBox>
+                            <VBox spacing="5">
+                                <Label text="Report Type" />
+                                <ChoiceBox fx:id="reportTypeChoiceBox" />
+                            </VBox>
+                            <VBox spacing="5">
+                                <Label text="Date" />
+                                <DatePicker fx:id="reportDatePicker" />
+                            </VBox>
+                            <VBox spacing="5">
+                                <Label text="Comments" />
+                                <TextArea fx:id="commentsArea" prefRowCount="3" />
+                            </VBox>
+                            <VBox spacing="5">
+                                <Label text="File" />
+                                <HBox spacing="10">
+                                    <Label fx:id="fileLabel" text="No file chosen" />
+                                    <Button text="Browse" onAction="#handleBrowseFile" />
+                                </HBox>
+                            </VBox>
+                            <Button text="Submit Report" onAction="#handleAddReport" />
+                            <Label fx:id="statusLabel" textFill="red" />
+                        </VBox>
+                    </TitledPane>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>
