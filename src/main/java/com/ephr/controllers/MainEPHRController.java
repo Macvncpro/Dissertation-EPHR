@@ -313,7 +313,7 @@ public class MainEPHRController {
             }
 
             this.btgGranted = true;
-            // logBtGAccess(email, fullName, selectedReason, category, explanation);
+            logBtGAccess(email, fullName, selectedReason, category, explanation);
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Access Granted");
@@ -322,6 +322,31 @@ public class MainEPHRController {
             alert.show();
         }
     }
+
+    private void logBtGAccess(String userEmail, String patientName, String reason, String category, String justification) {
+        String sql = """
+            INSERT INTO btg_audit (user_email, patient_name, reason, category, justification)
+            VALUES (?, ?, ?, ?, ?)
+        """;
+    
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:src/main/resources/database/users.db");
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+    
+            stmt.setString(1, userEmail);
+            stmt.setString(2, patientName);
+            stmt.setString(3, reason);
+            stmt.setString(4, category);
+            stmt.setString(5, justification);
+    
+            stmt.executeUpdate();
+    
+            System.out.println("📋 BtG access logged for: " + userEmail + " => " + patientName);
+    
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("❌ Failed to log Break-the-Glass access.");
+        }
+    }    
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
