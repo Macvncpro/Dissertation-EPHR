@@ -1,5 +1,6 @@
 package com.ephr.controllers;
 
+import com.ephr.helpers.EncryptionHelper;
 import com.ephr.models.Prescriptions;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -8,6 +9,7 @@ import javafx.scene.control.*;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,17 +37,40 @@ public class PrescriptionsController {
     private final Map<String, Integer> doctorMap = new HashMap<>();
     private final Map<String, Integer> medicationMap = new HashMap<>();
     private final Map<Integer, String> medicationIdToName = new HashMap<>();
+    private boolean btgGranted = false;
+    private int allowedPatientId = -1;
+    private LocalDateTime btgExpiryTime;
+
     private final String DB_URL = "jdbc:sqlite:src/main/resources/database/users.db";
 
     @FXML
     private void initialize() {
-        medicationCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(
-            medicationIdToName.getOrDefault(data.getValue().getMedicationId(), "Unknown")));
-        dosageCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getDosage()));
-        instructionsCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getInstructions()));
-        startDateCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getStartDate()));
-        endDateCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getEndDate()));
-        typeCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getType()));
+        medicationCol.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(
+                medicationIdToName.getOrDefault(data.getValue().getMedicationId(), "Unknown"))
+        );
+
+        dosageCol.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(
+                decryptIfAllowed(data.getValue().getPatientId(), data.getValue().getDosage()))
+        );
+
+        instructionsCol.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(
+                decryptIfAllowed(data.getValue().getPatientId(), data.getValue().getInstructions()))
+        );
+
+        startDateCol.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getStartDate())
+        );
+
+        endDateCol.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getEndDate())
+        );
+
+        typeCol.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getType())
+        );
 
         typeChoiceBox.setItems(FXCollections.observableArrayList("acute", "repeat"));
         typeChoiceBox.setValue("acute");
@@ -55,6 +80,15 @@ public class PrescriptionsController {
         loadMedications();
         loadPrescriptions();
     }
+
+    private String decryptIfAllowed(int patientId, String encryptedValue) {
+        if (btgGranted &&
+            patientId == allowedPatientId &&
+            LocalDateTime.now().isBefore(btgExpiryTime)) {
+            return EncryptionHelper.decrypt(encryptedValue);
+        }
+        return "[Protected – BtG Required]";
+    }    
 
     private void loadPatientChoices() {
         patientMap.clear();
@@ -183,8 +217,8 @@ public class PrescriptionsController {
             stmt.setInt(1, patientMap.get(patient));
             stmt.setInt(2, doctorMap.get(doctor));
             stmt.setInt(3, medicationMap.get(medication));
-            stmt.setString(4, dosage);
-            stmt.setString(5, instructions);
+            stmt.setString(4, EncryptionHelper.encrypt(dosage));
+            stmt.setString(5, EncryptionHelper.encrypt(instructions));
             stmt.setString(6, start.toString());
             stmt.setString(7, end.toString());
             stmt.setString(8, type);
@@ -206,4 +240,11 @@ public class PrescriptionsController {
         loadPrescriptions();
         formStatusLabel.setText("🔄 Refreshed.");
     }
+
+    public void setBtGState(boolean granted, int patientId, LocalDateTime expiry) {
+        this.btgGranted = granted;
+        this.allowedPatientId = patientId;
+        this.btgExpiryTime = expiry;
+    }
+    
 }

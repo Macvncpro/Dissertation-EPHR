@@ -4,10 +4,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+
+import com.ephr.helpers.EncryptionHelper;
 import com.ephr.models.MedicalHistory;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,17 +38,33 @@ public class MedicalHistoryController {
     private final Map<String, Integer> patientMap = new HashMap<>();
     private final Map<String, Integer> doctorMap = new HashMap<>();
 
+    private boolean btgGranted = false;
+    private int allowedPatientId = -1;
+    private LocalDateTime btgExpiryTime;
+
     private final String DB_URL = "jdbc:sqlite:src/main/resources/database/users.db";
 
     @FXML
     private void initialize() {
         // Table setup
-        conditionCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getCondition()));
-        diagnosisDateCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getDiagnosisDate()));
-        treatmentCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getTreatment()));
-        statusCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getStatus()));
-        severityCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getSeverity()));
-        notesCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getNotes()));
+        conditionCol.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(decryptIfAllowed(data.getValue().getPatientId(), data.getValue().getCondition()))
+        );
+        diagnosisDateCol.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getDiagnosisDate())
+        );
+        treatmentCol.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(decryptIfAllowed(data.getValue().getPatientId(), data.getValue().getTreatment()))
+        );
+        statusCol.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getStatus())
+        );
+        severityCol.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getSeverity())
+        );
+        notesCol.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(decryptIfAllowed(data.getValue().getPatientId(), data.getValue().getNotes()))
+        );
 
         // Form setup
         statusChoiceBox.setItems(FXCollections.observableArrayList("active", "resolved", "inactive"));
@@ -57,6 +76,15 @@ public class MedicalHistoryController {
         loadDoctorChoices();
         loadMedicalHistory();
     }
+
+    private String decryptIfAllowed(int patientId, String encryptedValue) {
+        if (btgGranted &&
+            patientId == allowedPatientId &&
+            LocalDateTime.now().isBefore(btgExpiryTime)) {
+            return EncryptionHelper.decrypt(encryptedValue);
+        }
+        return "[Protected – BtG Required]";
+    }    
 
     @FXML
     private void handleRefreshTable() {
@@ -122,21 +150,28 @@ public class MedicalHistoryController {
     }
 
     private void loadMedicalHistory() {
-        ObservableList<MedicalHistory> historyList = FXCollections.observableArrayList();
-
+        ObservableList<MedicalHistory> filteredList = FXCollections.observableArrayList();
+    
         String query = """
             SELECT id, patient_id, condition, diagnosis_date, treatment, status, severity, notes
             FROM medical_history
         """;
-
+    
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
-
+    
             while (rs.next()) {
-                historyList.add(new MedicalHistory(
+                int patientId = rs.getInt("patient_id");
+    
+                // If BtG is required and this patient is not the authorized one, skip
+                if (btgGranted && patientId != allowedPatientId) {
+                    continue;
+                }
+    
+                filteredList.add(new MedicalHistory(
                     rs.getInt("id"),
-                    rs.getInt("patient_id"),
+                    patientId,
                     rs.getString("condition"),
                     rs.getString("diagnosis_date"),
                     rs.getString("treatment"),
@@ -145,14 +180,14 @@ public class MedicalHistoryController {
                     rs.getString("notes")
                 ));
             }
-
-            historyTable.setItems(historyList);
-
+    
+            historyTable.setItems(filteredList);
+    
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
+    
     @FXML
     private void handleAddHistoryEntry() {
         String condition = conditionField.getText().trim();
@@ -188,12 +223,12 @@ public class MedicalHistoryController {
 
             stmt.setInt(1, patientId);
             stmt.setInt(2, doctorId);
-            stmt.setString(3, condition);
+            stmt.setString(3, EncryptionHelper.encrypt(condition));
             stmt.setString(4, diagnosisDate.toString());
-            stmt.setString(5, treatment);
+            stmt.setString(5, EncryptionHelper.encrypt(treatment));
             stmt.setString(6, status);
             stmt.setString(7, severity);
-            stmt.setString(8, notes);
+            stmt.setString(8, EncryptionHelper.encrypt(notes));
 
             int rows = stmt.executeUpdate();
             if (rows > 0) {
@@ -221,5 +256,11 @@ public class MedicalHistoryController {
         severityChoiceBox.setValue("moderate");
         notesArea.clear();
         doctorChoiceBox.setValue(null);
+    }
+
+    public void setBtGState(boolean granted, int patientId, LocalDateTime expiry) {
+        this.btgGranted = granted;
+        this.allowedPatientId = patientId;
+        this.btgExpiryTime = expiry;
     }
 }

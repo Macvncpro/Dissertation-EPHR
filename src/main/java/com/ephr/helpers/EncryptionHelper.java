@@ -5,31 +5,31 @@ import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
 public class EncryptionHelper {
-    private static final String KEY = "A1B2C3D4E5F6G7H8"; // 16-byte key (for AES-128)
+    private static final String SECRET_KEY = "A1B2C3D4E5F6G7H8"; // 16 chars = 128-bit key
 
     public static String encrypt(String data) {
         try {
-            SecretKeySpec secretKey = new SecretKeySpec(KEY.getBytes(), "AES");
+            SecretKeySpec key = new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
             Cipher cipher = Cipher.getInstance("AES");
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            byte[] encrypted = cipher.doFinal(data.getBytes());
-            return Base64.getEncoder().encodeToString(encrypted);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            byte[] encryptedBytes = cipher.doFinal(data.getBytes());
+            return Base64.getEncoder().encodeToString(encryptedBytes);
         } catch (Exception e) {
             e.printStackTrace();
-            return data; // fallback to plaintext on failure
+            return data; // fallback to plaintext if encryption fails
         }
     }
 
     public static String decrypt(String encryptedData) {
         try {
-            SecretKeySpec secretKey = new SecretKeySpec(KEY.getBytes(), "AES");
+            SecretKeySpec key = new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
             Cipher cipher = Cipher.getInstance("AES");
-            cipher.init(Cipher.DECRYPT_MODE, secretKey);
-            byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
-            return new String(decrypted);
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
+            return new String(decryptedBytes);
         } catch (Exception e) {
             e.printStackTrace();
-            return encryptedData; // fallback to raw data on failure
+            return "[DECRYPTION FAILED]";
         }
     }
 }

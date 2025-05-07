@@ -1,5 +1,6 @@
 package com.ephr.controllers;
 
+import com.ephr.helpers.EncryptionHelper;
 import com.ephr.models.DiagnosticReport;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +34,10 @@ public class DiagnosticReportsController {
     @FXML private Label fileLabel;
     @FXML private Label statusLabel;
 
+    private boolean btgGranted = false;
+    private int allowedPatientId = -1;
+    private LocalDateTime btgExpiryTime;
+
     private final String DB_URL = "jdbc:sqlite:src/main/resources/database/users.db";
     private final Map<String, Integer> patientMap = new HashMap<>();
     private final Map<String, Integer> doctorMap = new HashMap<>();
@@ -44,9 +50,15 @@ public class DiagnosticReportsController {
     @FXML
     private void initialize() {
         reportTypeCol.setCellValueFactory(new PropertyValueFactory<>("reportType"));
-        filePathCol.setCellValueFactory(new PropertyValueFactory<>("filePath"));
+
+        filePathCol.setCellValueFactory(new PropertyValueFactory<>("filePath")); // unencrypted
+
         reportDateCol.setCellValueFactory(new PropertyValueFactory<>("reportDate"));
-        commentsCol.setCellValueFactory(new PropertyValueFactory<>("comments"));
+
+        commentsCol.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(
+                decryptIfAllowed(data.getValue().getPatientId(), data.getValue().getComments()))
+        );
 
         reportTypeChoiceBox.setItems(allowedReportTypes);
         reportTypeChoiceBox.setValue("blood_test");
@@ -55,6 +67,15 @@ public class DiagnosticReportsController {
         loadDoctorChoices();
         loadReports();
     }
+
+    private String decryptIfAllowed(int patientId, String encryptedValue) {
+        if (btgGranted &&
+            patientId == allowedPatientId &&
+            LocalDateTime.now().isBefore(btgExpiryTime)) {
+            return EncryptionHelper.decrypt(encryptedValue);
+        }
+        return "[Protected – BtG Required]";
+    }    
 
     private void loadPatientChoices() {
         patientMap.clear();
@@ -177,7 +198,7 @@ public class DiagnosticReportsController {
             stmt.setString(3, reportType);
             stmt.setString(4, selectedFile.getAbsolutePath());
             stmt.setString(5, reportDate.toString());
-            stmt.setString(6, comments);
+            stmt.setString(6, EncryptionHelper.encrypt(comments));
 
             int rows = stmt.executeUpdate();
             if (rows > 0) {
@@ -203,4 +224,11 @@ public class DiagnosticReportsController {
         reportTypeChoiceBox.setValue("blood_test");
         selectedFile = null;
     }
+
+    public void setBtGState(boolean granted, int patientId, LocalDateTime expiry) {
+        this.btgGranted = granted;
+        this.allowedPatientId = patientId;
+        this.btgExpiryTime = expiry;
+    }
+    
 }

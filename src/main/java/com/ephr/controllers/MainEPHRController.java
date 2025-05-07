@@ -6,11 +6,16 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -19,10 +24,10 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.util.Duration;
 
 import com.ephr.Main;
 import com.ephr.helpers.Auth0Helper;
@@ -48,6 +53,12 @@ public class MainEPHRController {
 
     @FXML private Button breakGlassButton;
     private boolean btgGranted = false;
+    private int btgPatientId = -1;
+    private LocalDateTime btgExpiryTime;
+    @FXML
+    private Label btgTimerLabel;
+
+    private Timeline btgCountdownTimer;
 
     @FXML private TextField searchField;
     @FXML private Button searchButton;
@@ -243,9 +254,12 @@ public class MainEPHRController {
     @FXML
     private void handleBreakGlass() {
         PatientRecord selected = patientTable.getSelectionModel().getSelectedItem();
-
         if (selected == null) {
-            showError("❌ Please select a patient record before using Break-the-Glass.");
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("No Patient Selected");
+            alert.setHeaderText("Warning: Please select a patient before initiating Break-the-Glass.");
+            alert.setContentText("Click on a patient row first.");
+            alert.show();
             return;
         }
 
@@ -306,21 +320,47 @@ public class MainEPHRController {
             String selectedReason = ((RadioButton) reasonGroup.getSelectedToggle()).getText();
             String category = categoryBox.getValue();
             String explanation = explanationArea.getText().trim();
-
+        
             if (explanation.isBlank()) {
                 showError("Justification is required.");
                 return;
             }
-
+        
+            this.btgPatientId = DatabaseHelper.getPatientIdByEmail(selected.getEmail());
             this.btgGranted = true;
+            this.btgExpiryTime = LocalDateTime.now().plusMinutes(5); // ⏲️ 5-minute expiry
+            startBtGCountdown();
             logBtGAccess(email, fullName, selectedReason, category, explanation);
-
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Access Granted");
-            alert.setHeaderText("✅ Break-the-Glass Enabled");
-            alert.setContentText("You may now access protected data for: " + fullName);
-            alert.show();
         }
+    }
+
+    private void startBtGCountdown() {
+        if (btgCountdownTimer != null) {
+            btgCountdownTimer.stop();
+        }
+
+        btgTimerLabel.setVisible(true);
+
+        btgCountdownTimer = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            long secondsRemaining = java.time.Duration.between(LocalDateTime.now(), btgExpiryTime).getSeconds();
+
+            if (secondsRemaining <= 0) {
+                btgGranted = false;
+                btgPatientId = -1;
+                btgTimerLabel.setText("BtG expired");
+                btgCountdownTimer.stop();
+
+                PauseTransition hideLabel = new PauseTransition(Duration.seconds(3));
+                hideLabel.setOnFinished(e -> btgTimerLabel.setVisible(false));
+                hideLabel.play();
+            } else {
+                long mins = secondsRemaining / 60;
+                long secs = secondsRemaining % 60;
+                btgTimerLabel.setText("BtG active: " + String.format("%02d:%02d", mins, secs));
+            }
+        }));
+        btgCountdownTimer.setCycleCount(Animation.INDEFINITE);
+        btgCountdownTimer.play();
     }
 
     private void logBtGAccess(String userEmail, String patientName, String reason, String category, String justification) {
@@ -600,28 +640,37 @@ public class MainEPHRController {
 
     @FXML
     private void handleAppointmentsButton() {
-        loadContent("/fxml/Appointments.fxml");
+        loadContent("/fxml/Appointments.fxml", controller -> {});
     }
 
     @FXML
-    private void handleMedicalHistoryButton() throws IOException {
-        loadContent("/fxml/MedicalHistory.fxml");
+    private void handleMedicalHistoryButton() {
+        loadContent("/fxml/MedicalHistory.fxml", controller -> {
+            ((MedicalHistoryController) controller).setBtGState(btgGranted, btgPatientId, btgExpiryTime);
+        });
     }
 
     @FXML
     private void handlePrescriptionsButton() {
-        loadContent("/fxml/Prescriptions.fxml");
+        loadContent("/fxml/Prescriptions.fxml", controller -> {
+            ((PrescriptionsController) controller).setBtGState(btgGranted, btgPatientId, btgExpiryTime);
+        });
     }
 
     @FXML
     private void handleDiagnosticReportsButton() {
-        loadContent("/fxml/DiagnosticReports.fxml");
+        loadContent("/fxml/DiagnosticReports.fxml", controller -> {
+            ((DiagnosticReportsController) controller).setBtGState(btgGranted, btgPatientId, btgExpiryTime);
+        });
     }
-
-    private void loadContent(String fxmlPath) {
+    
+    private void loadContent(String fxmlPath, java.util.function.Consumer<Object> controllerCallback) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Node view = loader.load();
+            Object controller = loader.getController();
+            controllerCallback.accept(controller);
+    
             contentArea.getChildren().setAll(view);
             AnchorPane.setTopAnchor(view, 0.0);
             AnchorPane.setBottomAnchor(view, 0.0);
@@ -631,7 +680,6 @@ public class MainEPHRController {
             e.printStackTrace();
         }
     }
-
     
     @FXML
     private void handleLogout(ActionEvent event) {

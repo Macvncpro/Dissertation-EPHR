@@ -361,7 +361,30 @@ public class DatabaseHelper {
             e.printStackTrace();
             return false;
         }
-    }    
+    }
+
+    public static int getPatientIdByEmail(String email) {
+        String sql = """
+            SELECT p.id FROM patient p
+            JOIN users u ON p.user_id = u.id
+            WHERE u.email = ?
+        """;
     
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:src/main/resources/database/users.db");
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+    
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    
+        return -1; // Not found or error
+    }    
 
 }
