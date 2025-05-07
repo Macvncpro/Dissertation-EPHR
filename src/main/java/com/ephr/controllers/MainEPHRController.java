@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -30,6 +31,8 @@ import com.ephr.models.PatientRecord;
 
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 
 public class MainEPHRController {
 
@@ -42,6 +45,9 @@ public class MainEPHRController {
 
     @FXML private Label recordsLabel;
     @FXML private TableView<PatientRecord> patientTable;
+
+    @FXML private Button breakGlassButton;
+    private boolean btgGranted = false;
 
     @FXML private TextField searchField;
     @FXML private Button searchButton;
@@ -233,6 +239,97 @@ public class MainEPHRController {
             node.setManaged(visible);
         }
     }
+
+    @FXML
+    private void handleBreakGlass() {
+        PatientRecord selected = patientTable.getSelectionModel().getSelectedItem();
+
+        if (selected == null) {
+            showError("❌ Please select a patient record before using Break-the-Glass.");
+            return;
+        }
+
+        String fullName = selected.getFirstName() + " " + selected.getLastName();
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Break-the-Glass Access");
+        dialog.setHeaderText("🛑 You are requesting emergency access to protected medical data.");
+
+        // UI Elements
+        TextField nameField = new TextField(fullName);
+        nameField.setEditable(false);
+
+        ToggleGroup reasonGroup = new ToggleGroup();
+        RadioButton patientCareBtn = new RadioButton("Patient Care");
+        RadioButton accessBtn = new RadioButton("Patient Access");
+        RadioButton billingBtn = new RadioButton("Billing/Payment");
+        patientCareBtn.setToggleGroup(reasonGroup);
+        accessBtn.setToggleGroup(reasonGroup);
+        billingBtn.setToggleGroup(reasonGroup);
+        patientCareBtn.setSelected(true);
+
+        ComboBox<String> categoryBox = new ComboBox<>();
+        categoryBox.getItems().addAll("Operations", "Medical Records", "Research", "Unspecified");
+        categoryBox.setValue("Operations");
+
+        TextArea explanationArea = new TextArea();
+        explanationArea.setPromptText("Enter your justification here...");
+        explanationArea.setWrapText(true);
+        explanationArea.setPrefRowCount(4);
+
+        // Layout
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPrefWidth(600);
+
+        grid.add(new Label("Patient Name:"), 0, 0);
+        grid.add(nameField, 1, 0, 2, 1);
+
+        grid.add(new Label("Reason:"), 0, 1);
+        HBox reasonBox = new HBox(10, patientCareBtn, accessBtn, billingBtn);
+        grid.add(reasonBox, 1, 1, 2, 1);
+
+        grid.add(new Label("Detailed Reason:"), 0, 2);
+        grid.add(categoryBox, 1, 2, 2, 1);
+
+        grid.add(new Label("Further Explanation:"), 0, 3);
+        grid.add(explanationArea, 1, 3, 2, 1);
+
+        dialog.getDialogPane().setContent(grid);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.setResizable(true);
+
+        Optional<ButtonType> result = dialog.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            String selectedReason = ((RadioButton) reasonGroup.getSelectedToggle()).getText();
+            String category = categoryBox.getValue();
+            String explanation = explanationArea.getText().trim();
+
+            if (explanation.isBlank()) {
+                showError("Justification is required.");
+                return;
+            }
+
+            this.btgGranted = true;
+            // logBtGAccess(email, fullName, selectedReason, category, explanation);
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Access Granted");
+            alert.setHeaderText("✅ Break-the-Glass Enabled");
+            alert.setContentText("You may now access protected data for: " + fullName);
+            alert.show();
+        }
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("Input Required");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }    
 
     @FXML
     private void handleSearch() {

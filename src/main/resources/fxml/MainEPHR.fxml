@@ -26,6 +26,15 @@
         <AnchorPane fx:id="contentArea">
             <VBox spacing="15" alignment="TOP_CENTER" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
                 <Label text="📋 Patient Records" styleClass="header-label" fx:id="recordsLabel" />
+
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button fx:id="breakGlassButton"
+                            text="🚨 Break the Glass"
+                            style="-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold;"
+                            layoutX="1250" layoutY="10"
+                            onAction="#handleBreakGlass"/>
+                </HBox>
+
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <TextField fx:id="searchField" promptText="Search by name or DOB..." onAction="#handleSearch" />
                     <Button text="🔍 Search" fx:id="searchButton" onAction="#handleSearch" />
