@@ -36,7 +36,7 @@
                 </VBox>
 
                 <!-- Right: New Appointment Form -->
-                <TitledPane text="➕ New Appointment" expanded="false">
+                <TitledPane text="➕ New Appointment" expanded="true">
                     <VBox spacing="10" style="-fx-padding: 10;">
                         <HBox spacing="10">
                             <VBox spacing="5">

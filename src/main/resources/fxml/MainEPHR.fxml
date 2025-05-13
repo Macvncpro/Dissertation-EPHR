@@ -69,7 +69,7 @@
                     </columns>
                 </TableView>
 
-                <TitledPane fx:id="addUserPane" text="➕ Add New User" expanded="false">
+                <TitledPane fx:id="addUserPane" text="➕ Add New User" expanded="true">
                     <VBox spacing="10" style="-fx-padding: 10;">
                         <HBox spacing="10">
                             <VBox spacing="5">

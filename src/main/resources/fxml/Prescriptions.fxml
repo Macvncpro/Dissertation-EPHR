@@ -25,7 +25,7 @@
         </TableView>
 
         <!-- Form Section -->
-        <TitledPane text="Add Prescription" expanded="false">
+        <TitledPane text="Add Prescription" expanded="true">
             <VBox spacing="10">
                 <padding>
                     <Insets top="10" right="10" bottom="10" left="10"/>
