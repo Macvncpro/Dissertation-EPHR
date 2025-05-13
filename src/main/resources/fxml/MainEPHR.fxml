@@ -149,8 +149,43 @@
                         <Button text="Create User" onAction="#handleCreateUser" />
                     </VBox>
                 </TitledPane>
+
+                <TitledPane fx:id="userProfilePane" text="👤 My Profile" expanded="true" visible="false" managed="false">
+                    <GridPane hgap="20" vgap="10" style="-fx-padding: 10;">
+                        <Label text="First Name:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label fx:id="profileFirstName" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                        <Label text="Last Name:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <Label fx:id="profileLastName" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <Label text="Email:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <Label fx:id="profileEmail" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                        <Label text="Gender:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <Label fx:id="profileGender" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                        <Label text="Date of Birth:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <Label fx:id="profileDob" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                        <Label text="Phone:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                        <Label fx:id="profilePhone" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                        <Label text="Contact Method:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                        <Label fx:id="profileContact" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+                        <Label text="Address Line 1:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                        <Label fx:id="profileAddress1" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+                        <Label text="Address Line 2:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+                        <Label fx:id="profileAddress2" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+                        <Label text="Postcode:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+                        <Label fx:id="profilePostcode" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+                    </GridPane>
+                </TitledPane>
+
             </VBox>
-        </AnchorPane>
+        </AnchorPane>   
     </center>
 
 </BorderPane>

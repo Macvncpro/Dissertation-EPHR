@@ -98,6 +98,10 @@ public class MainEPHRController {
 
     @FXML private AnchorPane contentArea;
 
+    @FXML private TitledPane userProfilePane;
+    @FXML private Label profileFirstName, profileLastName, profileEmail, profileGender, profileDob,
+                    profilePhone, profileContact, profileAddress1, profileAddress2, profilePostcode;
+
     private String email;
     private String role;
     private Map<String, Integer> doctorMap = new HashMap<>();
@@ -247,6 +251,10 @@ public class MainEPHRController {
             refreshButton,
             patientTable
         );
+        
+        loadUserProfile(email);
+        userProfilePane.setVisible(true);
+        userProfilePane.setManaged(true);
     }
     
     private void setNodeVisibility(boolean visible, Node... nodes) {
@@ -447,6 +455,37 @@ public class MainEPHRController {
     @FXML
     private void handleRefreshTable() {
         loadAndShowPatientTable();
+    }
+
+    private void loadUserProfile(String email) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:src/main/resources/database/users.db");
+            PreparedStatement stmt = conn.prepareStatement("""
+                SELECT first_name, last_name, email, gender, date_of_birth,
+                        phone_number, preferred_contact,
+                        address_line1, address_line2, postcode
+                FROM users
+                WHERE email = ?
+            """)) {
+
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                profileFirstName.setText(rs.getString("first_name"));
+                profileLastName.setText(rs.getString("last_name"));
+                profileEmail.setText(rs.getString("email"));
+                profileGender.setText(rs.getString("gender"));
+                profileDob.setText(rs.getString("date_of_birth"));
+                profilePhone.setText(rs.getString("phone_number"));
+                profileContact.setText(rs.getString("preferred_contact"));
+                profileAddress1.setText(rs.getString("address_line1"));
+                profileAddress2.setText(rs.getString("address_line2"));
+                profilePostcode.setText(rs.getString("postcode"));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadAndShowPatientTable() {
