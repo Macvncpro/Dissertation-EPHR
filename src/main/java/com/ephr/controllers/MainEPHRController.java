@@ -195,7 +195,8 @@ public class MainEPHRController {
             searchField,
             searchButton,
             deleteButton,
-            refreshButton
+            refreshButton,
+            breakGlassButton
         );
     }
     
@@ -207,7 +208,8 @@ public class MainEPHRController {
             appointmentsButton,
             searchField,
             searchButton,
-            refreshButton
+            refreshButton,
+            breakGlassButton
         );
         setNodeVisibility(false, deleteButton);
     }
@@ -216,6 +218,9 @@ public class MainEPHRController {
         showDoctorView(); // reuse doctor view
         prescriptionsButton.setVisible(false);
         prescriptionsButton.setManaged(false);
+        
+        breakGlassButton.setVisible(false);
+        breakGlassButton.setManaged(false);
     }
     
     private void showReceptionistView() {
@@ -587,6 +592,8 @@ public class MainEPHRController {
     private void initialize() {
         patientTable.setVisible(false);
         recordsLabel.setVisible(false);
+        breakGlassButton.setVisible(false);
+        breakGlassButton.setManaged(false);
     
         // NHS number formatter
         nhsNumberField.textProperty().addListener((obs, oldText, newText) -> {
