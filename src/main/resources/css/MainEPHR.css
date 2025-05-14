@@ -28,9 +28,42 @@
 .table-view {
     -fx-background-color: white;
     -fx-border-color: #D4DDE3;
-    -fx-border-radius: 6px;
-    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.06), 4, 0, 0, 2);
+    -fx-border-radius: 8px;
+    -fx-padding: 6px;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.06), 4, 0, 0, 2);
     -fx-table-cell-border-color: #E6EEF2;
+    -fx-selection-bar: #D9E8FB;
+    -fx-selection-bar-text: #1A202C;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #EDF2F7;
+    -fx-border-color: #D4DDE3;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 8px;
+}
+
+.table-view .column-header .label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #2D3748;
+    -fx-font-size: 13px;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #F1F5F9 transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 6px;
+}
+
+.table-view .table-row-cell:filled:selected {
+    -fx-background-color: #D9E8FB;
+}
+
+.table-view .table-cell {
+    -fx-padding: 8px 12px;
+    -fx-text-fill: #1A202C;
+    -fx-font-size: 13px;
 }
 
 .table-column {
