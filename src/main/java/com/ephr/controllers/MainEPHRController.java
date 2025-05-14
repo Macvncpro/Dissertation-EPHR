@@ -18,6 +18,7 @@ import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -42,6 +43,7 @@ import javafx.scene.layout.HBox;
 
 public class MainEPHRController {
 
+    // Left Sidebar Buttons
     @FXML private Button dashboardButton;
     @FXML private Button medicalHistoryButton;
     @FXML private Button prescriptionsButton;
@@ -53,6 +55,7 @@ public class MainEPHRController {
     @FXML private Label recordsLabel;
     @FXML private TableView<PatientRecord> patientTable;
 
+    // Doctor or Admin view
     @FXML private Button breakGlassButton;
     private boolean btgGranted = false;
     private int btgPatientId = -1;
@@ -66,27 +69,16 @@ public class MainEPHRController {
     @FXML private Button searchButton;
     @FXML private Button refreshButton;
     @FXML private Button deleteButton;
-    @FXML private TableColumn<PatientRecord, String> firstNameCol;
-    @FXML private TableColumn<PatientRecord, String> lastNameCol;
-    @FXML private TableColumn<PatientRecord, String> emailCol;
-    @FXML private TableColumn<PatientRecord, String> genderCol;
-    @FXML private TableColumn<PatientRecord, String> dobCol;
-    @FXML private TableColumn<PatientRecord, String> nhsCol;
-    @FXML private TableColumn<PatientRecord, String> statusCol;
-    @FXML private TableColumn<PatientRecord, Boolean> sharingCol;
-    @FXML private TableColumn<PatientRecord, Boolean> scrCol;
-    @FXML private TableColumn<PatientRecord, String> phoneCol;
-    @FXML private TableColumn<PatientRecord, String> contactCol;
-    @FXML private TableColumn<PatientRecord, String> addressLine1Col;
-    @FXML private TableColumn<PatientRecord, String> addressLine2Col;
-    @FXML private TableColumn<PatientRecord, String> postcodeCol;
+    @FXML private TableColumn<PatientRecord, String> firstNameCol, lastNameCol, emailCol, genderCol,
+            dobCol, nhsCol, statusCol, phoneCol, contactCol, addressLine1Col, addressLine2Col, postcodeCol;
+    @FXML private TableColumn<PatientRecord, Boolean> sharingCol, scrCol;
 
+    // Add User Form
     @FXML private TitledPane addUserPane;
     @FXML private TextField firstNameField, lastNameField, emailField;
     @FXML private DatePicker dobPicker;
     @FXML private ChoiceBox<String> genderChoiceBox, roleChoiceBox;
     @FXML private Label formStatusLabel;
-
     @FXML private TextField nhsNumberField;
     @FXML private ChoiceBox<String> statusChoiceBox;
     @FXML private ChoiceBox<String> dataSharingChoiceBox;
@@ -100,9 +92,11 @@ public class MainEPHRController {
 
     @FXML private AnchorPane contentArea;
 
+    // User Profile
     @FXML private TitledPane userProfilePane;
     @FXML private Label profileFirstName, profileLastName, profileEmail, profileGender, profileDob,
                     profilePhone, profileContact, profileAddress1, profileAddress2, profilePostcode;
+    @FXML private Button manageAccessButton;
 
     private String email;
     private String role;
@@ -218,16 +212,21 @@ public class MainEPHRController {
             refreshButton,
             breakGlassButton
         );
-        setNodeVisibility(false, deleteButton);
+        setNodeVisibility(
+            false,
+            deleteButton,
+            auditButton
+        );
     }
     
     private void showNurseView() {
         showDoctorView(); // reuse doctor view
-        prescriptionsButton.setVisible(false);
-        prescriptionsButton.setManaged(false);
-        
-        breakGlassButton.setVisible(false);
-        breakGlassButton.setManaged(false);
+        setNodeVisibility(
+            false,
+            prescriptionsButton,
+            breakGlassButton,
+            auditButton
+        );
     }
     
     private void showReceptionistView() {
@@ -238,10 +237,22 @@ public class MainEPHRController {
             searchButton,
             refreshButton
         );
-        setNodeVisibility(false, prescriptionsButton, diagnosticReportsButton, deleteButton);
+        setNodeVisibility(
+            false,
+            prescriptionsButton, 
+            diagnosticReportsButton, 
+            deleteButton,
+            auditButton
+        );
     }
     
     private void showPatientView() {
+        setNodeVisibility(
+            true,
+            userProfilePane,
+            manageAccessButton
+
+        );
         setNodeVisibility(
             false,
             medicalHistoryButton,
@@ -252,18 +263,130 @@ public class MainEPHRController {
             searchButton,
             deleteButton,
             refreshButton,
-            patientTable
+            patientTable,
+            auditButton
         );
         
         loadUserProfile(email);
-        userProfilePane.setVisible(true);
-        userProfilePane.setManaged(true);
     }
     
     private void setNodeVisibility(boolean visible, Node... nodes) {
         for (Node node : nodes) {
             node.setVisible(visible);
             node.setManaged(visible);
+        }
+    }
+
+    @FXML
+    private void handleManageAccess() {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Grant Access to a Healthcare Professional");
+        dialog.setHeaderText("Select a record to grant access");
+
+        // UI controls
+        ComboBox<String> userDropdown = new ComboBox<>(DatabaseHelper.getDoctorAndNurseEmails());
+        ChoiceBox<String> resourceTypeBox = new ChoiceBox<>(FXCollections.observableArrayList("prescription", "medical_history", "diagnostic_report"));
+        ChoiceBox<String> permissionBox = new ChoiceBox<>(FXCollections.observableArrayList("read"));
+        permissionBox.setValue("read");
+
+        TableView<Map<String, Object>> recordTable = new TableView<>();
+        ObservableList<Map<String, Object>> tableData = FXCollections.observableArrayList();
+
+        // Setup Table
+        recordTable.setPlaceholder(new Label("No records loaded."));
+        recordTable.setPrefHeight(200);
+
+        resourceTypeBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            tableData.clear();
+            recordTable.getColumns().clear();
+            int patientId = DatabaseHelper.getPatientIdByEmail(email);
+
+            switch (newVal) {
+                case "prescription" -> {
+                    var records = DatabaseHelper.getPrescriptionsForPatient(patientId);
+                    if (!records.isEmpty()) {
+                        TableColumn<Map<String, Object>, String> col1 = new TableColumn<>("Medication");
+                        col1.setCellValueFactory(data -> new SimpleStringProperty((String) data.getValue().get("medication")));
+                        TableColumn<Map<String, Object>, String> col2 = new TableColumn<>("Start");
+                        col2.setCellValueFactory(data -> new SimpleStringProperty((String) data.getValue().get("start_date")));
+                        TableColumn<Map<String, Object>, String> col3 = new TableColumn<>("End");
+                        col3.setCellValueFactory(data -> new SimpleStringProperty((String) data.getValue().get("end_date")));
+                        recordTable.getColumns().addAll(col1, col2, col3);
+                    }
+                    tableData.setAll(records);
+                }
+
+                case "medical_history" -> {
+                    var records = DatabaseHelper.getMedicalHistoryForPatient(patientId);
+                    if (!records.isEmpty()) {
+                        TableColumn<Map<String, Object>, String> col1 = new TableColumn<>("Condition");
+                        col1.setCellValueFactory(data -> new SimpleStringProperty((String) data.getValue().get("condition")));
+                        TableColumn<Map<String, Object>, String> col2 = new TableColumn<>("Diagnosis Date");
+                        col2.setCellValueFactory(data -> new SimpleStringProperty((String) data.getValue().get("diagnosis_date")));
+                        TableColumn<Map<String, Object>, String> col3 = new TableColumn<>("Severity");
+                        col3.setCellValueFactory(data -> new SimpleStringProperty((String) data.getValue().get("severity")));
+                        recordTable.getColumns().addAll(col1, col2, col3);
+                    }
+                    tableData.setAll(records);
+                }
+
+                case "diagnostic_report" -> {
+                    var records = DatabaseHelper.getDiagnosticReportsForPatient(patientId);
+                    if (!records.isEmpty()) {
+                        TableColumn<Map<String, Object>, String> col1 = new TableColumn<>("Type");
+                        col1.setCellValueFactory(data -> new SimpleStringProperty((String) data.getValue().get("report_type")));
+                        TableColumn<Map<String, Object>, String> col2 = new TableColumn<>("Date");
+                        col2.setCellValueFactory(data -> new SimpleStringProperty((String) data.getValue().get("report_date")));
+                        recordTable.getColumns().addAll(col1, col2);
+                    }
+                    tableData.setAll(records);
+                }
+            }
+
+            recordTable.setItems(tableData);
+        });
+
+        // UI layout
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPrefWidth(600);
+
+        grid.add(new Label("User Email:"), 0, 0);
+        grid.add(userDropdown, 1, 0);
+
+        grid.add(new Label("Record Type:"), 0, 1);
+        grid.add(resourceTypeBox, 1, 1);
+
+        grid.add(new Label("Permission:"), 0, 2);
+        grid.add(permissionBox, 1, 2);
+
+        grid.add(new Label("Select Record:"), 0, 3);
+        grid.add(recordTable, 0, 4, 2, 1);
+
+        dialog.getDialogPane().setContent(grid);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.setResizable(true);
+
+        Optional<ButtonType> result = dialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            var selected = recordTable.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                new Alert(Alert.AlertType.ERROR, "No record selected.").showAndWait();
+                return;
+            }
+
+            int patientId = DatabaseHelper.getPatientIdByEmail(email);
+            int userId = DatabaseHelper.getUserIdByEmail(userDropdown.getValue());
+            String resourceType = resourceTypeBox.getValue();
+            String permission = permissionBox.getValue();
+            int resourceId = (int) selected.get("id");
+
+            boolean granted = DatabaseHelper.insertPatientGrantedAccess(userId, resourceType, resourceId, permission, patientId);
+
+            Alert alert = new Alert(granted ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+            alert.setContentText(granted ? "✅ Access granted." : "❌ Failed to grant access.");
+            alert.show();
         }
     }
 

@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.ephr.models.Appointment;
 import com.ephr.models.DiagnosticReport;
@@ -18,11 +20,15 @@ public class DatabaseHelper {
 
     private static final String DB_URL = "jdbc:sqlite:src/main/resources/database/users.db";
 
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(DB_URL);
+    }
+
     public static String getUserRoleByEmail(String email) {
         String role = null;
         String query = "SELECT role FROM users WHERE email = ?";
     
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
     
             stmt.setString(1, email);
@@ -42,7 +48,7 @@ public class DatabaseHelper {
     public static boolean insertNewUser(String firstName, String lastName, String email, String dob, String gender, String role) {
         String query = "INSERT INTO users (first_name, last_name, email, date_of_birth, gender, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))";
     
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
     
             stmt.setString(1, firstName);
@@ -72,7 +78,7 @@ public class DatabaseHelper {
             JOIN patient p ON u.id = p.user_id
         """;
     
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
     
@@ -118,6 +124,98 @@ public class DatabaseHelper {
         return list;
     }
 
+    public static ObservableList<Map<String, Object>> getPrescriptionsForPatient(int patientId) {
+        ObservableList<Map<String, Object>> list = FXCollections.observableArrayList();
+        String sql = "SELECT id, start_date, end_date, prescription_type, medication_id FROM prescription WHERE patient_id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, patientId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("id", rs.getInt("id"));
+                row.put("start_date", rs.getString("start_date"));
+                row.put("end_date", rs.getString("end_date"));
+                row.put("type", rs.getString("prescription_type"));
+
+                // Optionally fetch medication name if you want it shown
+                int medId = rs.getInt("medication_id");
+                String medName = getMedicationNameById(medId);
+                row.put("medication", medName);
+
+                list.add(row);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    private static String getMedicationNameById(int medId) {
+        try (Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement("SELECT name FROM medications WHERE id = ?")) {
+            stmt.setInt(1, medId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getString("name");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Unknown";
+    }
+
+    public static ObservableList<Map<String, Object>> getMedicalHistoryForPatient(int patientId) {
+        ObservableList<Map<String, Object>> list = FXCollections.observableArrayList();
+        String sql = "SELECT id, condition, diagnosis_date, severity FROM medical_history WHERE patient_id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, patientId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("id", rs.getInt("id"));
+                row.put("condition", EncryptionHelper.decrypt(rs.getString("condition")));
+                row.put("diagnosis_date", rs.getString("diagnosis_date"));
+                row.put("severity", rs.getString("severity"));
+                list.add(row);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public static ObservableList<Map<String, Object>> getDiagnosticReportsForPatient(int patientId) {
+        ObservableList<Map<String, Object>> list = FXCollections.observableArrayList();
+        String sql = "SELECT id, report_type, report_date FROM diagnostic_report WHERE patient_id = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, patientId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("id", rs.getInt("id"));
+                row.put("report_type", rs.getString("report_type"));
+                row.put("report_date", rs.getString("report_date"));
+                list.add(row);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
     public static ObservableList<Appointment> getAllAppointments() {
         ObservableList<Appointment> appointments = FXCollections.observableArrayList();
     
@@ -136,7 +234,7 @@ public class DatabaseHelper {
             ORDER BY a.appointment_date DESC
         """;
     
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
     
@@ -166,7 +264,7 @@ public class DatabaseHelper {
             VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
         """;
     
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
     
             stmt.setInt(1, patientId);
@@ -198,7 +296,7 @@ public class DatabaseHelper {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
         """;
 
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, firstName);
@@ -229,7 +327,7 @@ public class DatabaseHelper {
     public static boolean insertPatientDetails(int userId, String nhsNumber, String status, Integer doctorId, boolean dataSharing, boolean scrConsent) {
         String query = "INSERT INTO patient (user_id, nhs_number, status, assigned_doctor_id, data_sharing_consent, scr_consent, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))";
     
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
     
             stmt.setInt(1, userId);
@@ -254,7 +352,7 @@ public class DatabaseHelper {
         ObservableList<DiagnosticReport> list = FXCollections.observableArrayList();
         String query = "SELECT * FROM diagnostic_report";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery()) {
 
@@ -280,7 +378,7 @@ public class DatabaseHelper {
         String getUserQuery = "SELECT id FROM users WHERE email = ? AND role = 'doctor'";
         String getDoctorQuery = "SELECT id FROM doctor WHERE user_id = ?";
     
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:src/main/resources/database/users.db")) {
+        try (Connection conn = getConnection()) {
             try (PreparedStatement userStmt = conn.prepareStatement(getUserQuery)) {
                 userStmt.setString(1, email);
                 ResultSet userRs = userStmt.executeQuery();
@@ -310,7 +408,7 @@ public class DatabaseHelper {
         String deletePatientQuery = "DELETE FROM patient WHERE user_id = ?";
         String deleteUserQuery = "DELETE FROM users WHERE id = ?";
     
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = getConnection()) {
             conn.setAutoCommit(false); // Start transaction
     
             try (PreparedStatement getUserIdStmt = conn.prepareStatement(getUserIdQuery)) {
@@ -349,7 +447,7 @@ public class DatabaseHelper {
     public static boolean updateAppointmentStatus(Appointment appt, String newStatus) {
         String query = "UPDATE appointment SET status = ?, updated_at = datetime('now') WHERE appointment_date = ? AND patient_id = (SELECT id FROM patient WHERE user_id = ?)";
     
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
     
             stmt.setString(1, newStatus);
@@ -370,7 +468,7 @@ public class DatabaseHelper {
             WHERE u.email = ?
         """;
     
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:src/main/resources/database/users.db");
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, email);
@@ -385,6 +483,52 @@ public class DatabaseHelper {
         }
     
         return -1; // Not found or error
-    }    
+    }
+
+    public static boolean insertPatientGrantedAccess(int userId, String resourceType, int resourceId, String permission, int grantedBy) {
+        String sql = "INSERT INTO access_control (user_id, resource_type, resource_id, permission, granted_by) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setString(2, resourceType);
+            stmt.setInt(3, resourceId);
+            stmt.setString(4, permission);
+            stmt.setInt(5, grantedBy);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static ObservableList<String> getDoctorAndNurseEmails() {
+        ObservableList<String> emails = FXCollections.observableArrayList();
+        try (Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement("SELECT email FROM users WHERE role IN ('doctor', 'nurse')");
+            ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) emails.add(rs.getString("email"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return emails;
+    }
+
+    public static int getUserIdByEmail(String email) {
+        String sql = "SELECT id FROM users WHERE email = ?";
+        try (Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // return -1 if not found or error
+    }
 
 }

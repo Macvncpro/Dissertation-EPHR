@@ -104,6 +104,8 @@
                     </GridPane>
                 </TitledPane>
 
+                <Button fx:id="manageAccessButton" text="Manage Access" onAction="#handleManageAccess"/>
+
                 <TitledPane fx:id="addUserPane" text="➕ Add New User" expanded="true">
                     <VBox spacing="10" style="-fx-padding: 10;">
                         <HBox spacing="10">
