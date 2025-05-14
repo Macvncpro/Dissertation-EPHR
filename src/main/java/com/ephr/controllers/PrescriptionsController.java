@@ -1,5 +1,6 @@
 package com.ephr.controllers;
 
+import com.ephr.helpers.DatabaseHelper;
 import com.ephr.helpers.EncryptionHelper;
 import com.ephr.models.Prescriptions;
 import javafx.collections.FXCollections;
@@ -40,6 +41,8 @@ public class PrescriptionsController {
     private boolean btgGranted = false;
     private int allowedPatientId = -1;
     private LocalDateTime btgExpiryTime;
+
+    private String email; // logged-in user email
 
     private final String DB_URL = "jdbc:sqlite:src/main/resources/database/users.db";
 
@@ -88,7 +91,11 @@ public class PrescriptionsController {
             return EncryptionHelper.decrypt(encryptedValue);
         }
         return "[Protected – BtG Required]";
-    }    
+    }
+
+    public void setUserContext(String email) {
+        this.email = email;
+    }
 
     private void loadPatientChoices() {
         patientMap.clear();
@@ -167,9 +174,23 @@ public class PrescriptionsController {
     private void loadPrescriptions() {
         ObservableList<Prescriptions> list = FXCollections.observableArrayList();
 
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM prescription ORDER BY created_at DESC");
-             ResultSet rs = stmt.executeQuery()) {
+        int currentUserId = DatabaseHelper.getUserIdByEmail(this.email);  // set this.email at controller init
+
+        String sql = """
+            SELECT p.*
+            FROM prescription p
+            JOIN access_control ac ON ac.resource_type = 'prescription'
+                                AND ac.resource_id = p.id
+                                AND ac.user_id = ?
+            WHERE ac.permission = 'read'
+            ORDER BY p.created_at DESC
+        """;
+
+        try (Connection conn = DatabaseHelper.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, currentUserId);
+            ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 list.add(new Prescriptions(

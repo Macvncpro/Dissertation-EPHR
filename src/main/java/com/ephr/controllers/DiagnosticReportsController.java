@@ -1,5 +1,6 @@
 package com.ephr.controllers;
 
+import com.ephr.helpers.DatabaseHelper;
 import com.ephr.helpers.EncryptionHelper;
 import com.ephr.models.DiagnosticReport;
 import javafx.collections.FXCollections;
@@ -20,12 +21,14 @@ import java.util.Map;
 
 public class DiagnosticReportsController {
 
+    // Diagnostic Report Table
     @FXML private TableView<DiagnosticReport> reportTable;
     @FXML private TableColumn<DiagnosticReport, String> reportTypeCol;
     @FXML private TableColumn<DiagnosticReport, String> filePathCol;
     @FXML private TableColumn<DiagnosticReport, String> reportDateCol;
     @FXML private TableColumn<DiagnosticReport, String> commentsCol;
 
+    // Add Diagnostic Report Form
     @FXML private ChoiceBox<String> patientChoiceBox;
     @FXML private ChoiceBox<String> doctorChoiceBox;
     @FXML private ChoiceBox<String> reportTypeChoiceBox;
@@ -37,6 +40,8 @@ public class DiagnosticReportsController {
     private boolean btgGranted = false;
     private int allowedPatientId = -1;
     private LocalDateTime btgExpiryTime;
+    
+    private String email;
 
     private final String DB_URL = "jdbc:sqlite:src/main/resources/database/users.db";
     private final Map<String, Integer> patientMap = new HashMap<>();
@@ -75,7 +80,11 @@ public class DiagnosticReportsController {
             return EncryptionHelper.decrypt(encryptedValue);
         }
         return "[Protected – BtG Required]";
-    }    
+    }
+
+    public void setUserContext(String email) {
+        this.email = email;
+    }
 
     private void loadPatientChoices() {
         patientMap.clear();
@@ -122,28 +131,41 @@ public class DiagnosticReportsController {
     private void loadReports() {
         ObservableList<DiagnosticReport> reports = FXCollections.observableArrayList();
 
-        String query = "SELECT * FROM diagnostic_report ORDER BY report_date DESC";
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
+        int currentUserId = DatabaseHelper.getUserIdByEmail(this.email);
+
+        String query = """
+            SELECT dr.*
+            FROM diagnostic_report dr
+            JOIN access_control ac ON ac.resource_type = 'diagnostic_report'
+                                AND ac.resource_id = dr.id
+                                AND ac.user_id = ?
+            WHERE ac.permission = 'read'
+            ORDER BY dr.report_date DESC
+        """;
+
+        try (Connection conn = DatabaseHelper.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, currentUserId);
+            ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 reports.add(new DiagnosticReport(
-                        rs.getInt("id"),
-                        rs.getInt("patient_id"),
-                        rs.getInt("doctor_id"),
-                        rs.getString("report_type"),
-                        rs.getString("file_path"),
-                        rs.getString("report_date"),
-                        rs.getString("comments")
+                    rs.getInt("id"),
+                    rs.getInt("patient_id"),
+                    rs.getInt("doctor_id"),
+                    rs.getString("report_type"),
+                    rs.getString("file_path"),
+                    rs.getString("report_date"),
+                    rs.getString("comments")
                 ));
             }
+
+            reportTable.setItems(reports);
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        reportTable.setItems(reports);
     }
 
     @FXML

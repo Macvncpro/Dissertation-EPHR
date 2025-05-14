@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import com.ephr.helpers.DatabaseHelper;
 import com.ephr.helpers.EncryptionHelper;
 import com.ephr.models.MedicalHistory;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 
 public class MedicalHistoryController {
 
+    // Medical History Table
     @FXML private TableView<MedicalHistory> historyTable;
     @FXML private TableColumn<MedicalHistory, String> conditionCol;
     @FXML private TableColumn<MedicalHistory, String> diagnosisDateCol;
@@ -24,6 +26,7 @@ public class MedicalHistoryController {
     @FXML private TableColumn<MedicalHistory, String> severityCol;
     @FXML private TableColumn<MedicalHistory, String> notesCol;
 
+    // Add Medical History Form
     @FXML private TextField conditionField;
     @FXML private DatePicker diagnosisDatePicker;
     @FXML private TextField treatmentField;
@@ -41,6 +44,8 @@ public class MedicalHistoryController {
     private boolean btgGranted = false;
     private int allowedPatientId = -1;
     private LocalDateTime btgExpiryTime;
+
+    private String email;
 
     private final String DB_URL = "jdbc:sqlite:src/main/resources/database/users.db";
 
@@ -84,7 +89,11 @@ public class MedicalHistoryController {
             return EncryptionHelper.decrypt(encryptedValue);
         }
         return "[Protected – BtG Required]";
-    }    
+    }
+
+    public void setUserContext(String email) {
+        this.email = email;
+    }
 
     @FXML
     private void handleRefreshTable() {
@@ -151,27 +160,28 @@ public class MedicalHistoryController {
 
     private void loadMedicalHistory() {
         ObservableList<MedicalHistory> filteredList = FXCollections.observableArrayList();
-    
-        String query = """
-            SELECT id, patient_id, condition, diagnosis_date, treatment, status, severity, notes
-            FROM medical_history
+
+        int currentUserId = DatabaseHelper.getUserIdByEmail(this.email);
+
+        String sql = """
+            SELECT mh.*
+            FROM medical_history mh
+            JOIN access_control ac ON ac.resource_type = 'medical_history'
+                                AND ac.resource_id = mh.id
+                                AND ac.user_id = ?
+            WHERE ac.permission = 'read'
         """;
-    
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-    
+
+        try (Connection conn = DatabaseHelper.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, currentUserId);
+            ResultSet rs = stmt.executeQuery();
+
             while (rs.next()) {
-                int patientId = rs.getInt("patient_id");
-    
-                // If BtG is required and this patient is not the authorized one, skip
-                if (btgGranted && patientId != allowedPatientId) {
-                    continue;
-                }
-    
                 filteredList.add(new MedicalHistory(
                     rs.getInt("id"),
-                    patientId,
+                    rs.getInt("patient_id"),
                     rs.getString("condition"),
                     rs.getString("diagnosis_date"),
                     rs.getString("treatment"),
@@ -180,9 +190,9 @@ public class MedicalHistoryController {
                     rs.getString("notes")
                 ));
             }
-    
+
             historyTable.setItems(filteredList);
-    
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

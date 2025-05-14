@@ -805,6 +805,7 @@ public class MainEPHRController {
     @FXML
     private void handleMedicalHistoryButton() {
         loadContent("/fxml/MedicalHistory.fxml", controller -> {
+            ((MedicalHistoryController) controller).setUserContext(this.email);
             ((MedicalHistoryController) controller).setBtGState(btgGranted, btgPatientId, btgExpiryTime);
         });
     }
@@ -812,6 +813,7 @@ public class MainEPHRController {
     @FXML
     private void handlePrescriptionsButton() {
         loadContent("/fxml/Prescriptions.fxml", controller -> {
+            ((PrescriptionsController) controller).setUserContext(this.email);
             ((PrescriptionsController) controller).setBtGState(btgGranted, btgPatientId, btgExpiryTime);
         });
     }
@@ -819,6 +821,7 @@ public class MainEPHRController {
     @FXML
     private void handleDiagnosticReportsButton() {
         loadContent("/fxml/DiagnosticReports.fxml", controller -> {
+            ((DiagnosticReportsController) controller).setUserContext(this.email);
             ((DiagnosticReportsController) controller).setBtGState(btgGranted, btgPatientId, btgExpiryTime);
         });
     }
