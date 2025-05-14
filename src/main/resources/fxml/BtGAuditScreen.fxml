@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" alignment="TOP_CENTER" xmlns:fx="http://javafx.com/fxml" fx:controller="com.ephr.controllers.BtGAuditController">
+    <Label text="🧾 Break-the-Glass Blockchain Audit" style="-fx-font-size: 18px;" />
+    
+    <TableView fx:id="btgTable" prefHeight="400" prefWidth="800">
+        <columns>
+            <TableColumn fx:id="timestampCol" text="Timestamp"/>
+            <TableColumn fx:id="userCol" text="User"/>
+            <TableColumn fx:id="patientCol" text="Patient"/>
+            <TableColumn fx:id="reasonCol" text="Reason"/>
+            <TableColumn fx:id="categoryCol" text="Category"/>
+            <TableColumn fx:id="justificationCol" text="Justification"/>
+            <TableColumn fx:id="tamperedCol" text="Tampered?"/>
+        </columns>
+    </TableView>
+
+    <HBox spacing="10">
+        <Button text="🔁 Re-Validate Chain" onAction="#handleValidate"/>
+        <Button text="📤 Export Chain" onAction="#handleExport"/>
+    </HBox>
+
+    <Label fx:id="statusLabel" textFill="red" />
+</VBox>

@@ -47,6 +47,7 @@ public class MainEPHRController {
     @FXML private Button prescriptionsButton;
     @FXML private Button diagnosticReportsButton;
     @FXML private Button appointmentsButton;
+    @FXML private Button auditButton;
     @FXML private Button logoutButton;
 
     @FXML private Label recordsLabel;
@@ -201,7 +202,8 @@ public class MainEPHRController {
             searchButton,
             deleteButton,
             refreshButton,
-            breakGlassButton
+            breakGlassButton,
+            auditButton
         );
     }
     
@@ -696,6 +698,11 @@ public class MainEPHRController {
         loadContent("/fxml/DiagnosticReports.fxml", controller -> {
             ((DiagnosticReportsController) controller).setBtGState(btgGranted, btgPatientId, btgExpiryTime);
         });
+    }
+
+    @FXML
+    private void handleAuditScreen() {
+        loadContent("/fxml/BtGAuditScreen.fxml", controller -> {});
     }
     
     private void loadContent(String fxmlPath, java.util.function.Consumer<Object> controllerCallback) {

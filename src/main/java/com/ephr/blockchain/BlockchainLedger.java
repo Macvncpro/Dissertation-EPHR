@@ -70,4 +70,8 @@ public class BlockchainLedger {
         return true;
     }
 
+    public List<Block> getChain() {
+        return Collections.unmodifiableList(chain);
+    }
+
 }

@@ -17,6 +17,7 @@
             <Button text="💊 Prescriptions" onAction="#handlePrescriptionsButton" fx:id="prescriptionsButton" styleClass="sidebar-button" />
             <Button text="🧪 Diagnostic Reports" onAction="#handleDiagnosticReportsButton" fx:id="diagnosticReportsButton" styleClass="sidebar-button" />
             <Button text="📅 Appointments" onAction="#handleAppointmentsButton" fx:id="appointmentsButton" styleClass="sidebar-button" />
+            <Button text="📑 Audit BtG Logs" onAction="#handleAuditScreen" fx:id="auditButton" styleClass="sidebar-button"/>
             <Button text="🚪 Logout" onAction="#handleLogout" fx:id="logoutButton" styleClass="sidebar-button" />
             <Label fx:id="btgTimerLabel"
                     text=""
