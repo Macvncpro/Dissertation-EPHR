@@ -30,6 +30,7 @@ import javafx.scene.web.WebView;
 import javafx.util.Duration;
 
 import com.ephr.Main;
+import com.ephr.blockchain.BlockchainLedger;
 import com.ephr.helpers.Auth0Helper;
 import com.ephr.helpers.DatabaseHelper;
 import com.ephr.models.PatientRecord;
@@ -377,29 +378,16 @@ public class MainEPHRController {
     }
 
     private void logBtGAccess(String userEmail, String patientName, String reason, String category, String justification) {
-        String sql = """
-            INSERT INTO btg_audit (user_email, patient_name, reason, category, justification)
-            VALUES (?, ?, ?, ?, ?)
-        """;
-    
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:src/main/resources/database/users.db");
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-    
-            stmt.setString(1, userEmail);
-            stmt.setString(2, patientName);
-            stmt.setString(3, reason);
-            stmt.setString(4, category);
-            stmt.setString(5, justification);
-    
-            stmt.executeUpdate();
-    
-            System.out.println("📋 BtG access logged for: " + userEmail + " => " + patientName);
-    
-        } catch (Exception e) {
-            e.printStackTrace();
-            showError("❌ Failed to log Break-the-Glass access.");
-        }
-    }    
+        // Structure the BtG event as JSON
+        String json = String.format(
+            "{\"user\":\"%s\", \"patient\":\"%s\", \"reason\":\"%s\", \"category\":\"%s\", \"justification\":\"%s\"}",
+            userEmail, patientName, reason, category, justification.replace("\"", "'")
+        );
+
+        // Add to blockchain ledger
+        new BlockchainLedger().addRecord(json);
+        System.out.println("📦 BtG access recorded in blockchain ledger.");
+    }
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
