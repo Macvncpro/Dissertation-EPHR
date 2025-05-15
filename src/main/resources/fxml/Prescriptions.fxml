@@ -24,6 +24,14 @@
             </columns>
         </TableView>
 
+                <!-- Refresh -->
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Button text="🔄 Refresh Table" onAction="#handleRefresh"/>
+        </HBox>
+
         <!-- Form Section -->
         <TitledPane text="Add Prescription" expanded="true">
             <VBox spacing="10">
@@ -69,12 +77,5 @@
             </VBox>
         </TitledPane>
 
-        <!-- Refresh -->
-        <HBox spacing="10" alignment="CENTER_RIGHT">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
-            <Button text="🔄 Refresh Table" onAction="#handleRefresh"/>
-        </HBox>
     </VBox>
 </AnchorPane>
