@@ -79,7 +79,6 @@ public class MedicalHistoryController {
 
         loadPatientChoices();
         loadDoctorChoices();
-        loadMedicalHistory();
     }
 
     private String decryptIfAllowed(int patientId, String encryptedValue) {
@@ -93,6 +92,7 @@ public class MedicalHistoryController {
 
     public void setUserContext(String email) {
         this.email = email;
+        loadMedicalHistory();
     }
 
     @FXML
@@ -170,10 +170,7 @@ public class MedicalHistoryController {
             ON ac.resource_type = 'medical_history'
             AND ac.user_id = ?
             AND ac.permission = 'read'
-            AND (
-                (ac.resource_id = mh.id AND ac.all_records = 0) OR
-                (ac.all_records = 1 AND ac.granted_by = mh.patient_id)
-            )
+            AND ac.resource_id = mh.id
         """;
 
         try (Connection conn = DatabaseHelper.getConnection();

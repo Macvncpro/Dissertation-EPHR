@@ -81,7 +81,7 @@ public class PrescriptionsController {
         loadPatientChoices();
         loadDoctorChoices();
         loadMedications();
-        loadPrescriptions();
+
     }
 
     private String decryptIfAllowed(int patientId, String encryptedValue) {
@@ -95,6 +95,7 @@ public class PrescriptionsController {
 
     public void setUserContext(String email) {
         this.email = email;
+        loadPrescriptions();
     }
 
     private void loadPatientChoices() {
@@ -174,7 +175,7 @@ public class PrescriptionsController {
     private void loadPrescriptions() {
         ObservableList<Prescriptions> list = FXCollections.observableArrayList();
 
-        int currentUserId = DatabaseHelper.getUserIdByEmail(this.email);
+        int currentUserId = DatabaseHelper.getUserIdByEmail(this.email); // make sure email is passed in
 
         String sql = """
             SELECT p.*
@@ -183,10 +184,7 @@ public class PrescriptionsController {
             ON ac.resource_type = 'prescription'
             AND ac.user_id = ?
             AND ac.permission = 'read'
-            AND (
-                (ac.resource_id = p.id AND ac.all_records = 0) OR
-                (ac.all_records = 1 AND ac.granted_by = p.patient_id)
-            )
+            AND ac.resource_id = p.id
             ORDER BY p.created_at DESC
         """;
 

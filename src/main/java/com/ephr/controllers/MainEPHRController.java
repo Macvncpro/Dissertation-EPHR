@@ -384,7 +384,7 @@ public class MainEPHRController {
                 for (Map<String, Object> row : tableData) {
                     int recordId = (int) row.get("id");
                     boolean granted = DatabaseHelper.insertPatientGrantedAccess(
-                        userId, resourceType, recordId, permission, patientId, false
+                        userId, resourceType, recordId, permission, patientId
                     );
                     if (granted) grantedAny = true;
                 }
@@ -396,7 +396,7 @@ public class MainEPHRController {
                 }
                 int recordId = (int) selected.get("id");
                 grantedAny = DatabaseHelper.insertPatientGrantedAccess(
-                    userId, resourceType, recordId, permission, patientId, false
+                    userId, resourceType, recordId, permission, patientId
                 );
             }
 

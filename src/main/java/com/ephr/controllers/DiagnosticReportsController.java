@@ -70,7 +70,7 @@ public class DiagnosticReportsController {
 
         loadPatientChoices();
         loadDoctorChoices();
-        loadReports();
+
     }
 
     private String decryptIfAllowed(int patientId, String encryptedValue) {
@@ -84,6 +84,7 @@ public class DiagnosticReportsController {
 
     public void setUserContext(String email) {
         this.email = email;
+        loadReports();
     }
 
     private void loadPatientChoices() {
@@ -140,10 +141,7 @@ public class DiagnosticReportsController {
             ON ac.resource_type = 'diagnostic_report'
             AND ac.user_id = ?
             AND ac.permission = 'read'
-            AND (
-                (ac.resource_id = dr.id AND ac.all_records = 0) OR
-                (ac.all_records = 1 AND ac.granted_by = dr.patient_id)
-            )
+            AND ac.resource_id = dr.id
             ORDER BY dr.report_date DESC
         """;
 
