@@ -174,15 +174,19 @@ public class PrescriptionsController {
     private void loadPrescriptions() {
         ObservableList<Prescriptions> list = FXCollections.observableArrayList();
 
-        int currentUserId = DatabaseHelper.getUserIdByEmail(this.email);  // set this.email at controller init
+        int currentUserId = DatabaseHelper.getUserIdByEmail(this.email);
 
         String sql = """
             SELECT p.*
             FROM prescription p
-            JOIN access_control ac ON ac.resource_type = 'prescription'
-                                AND ac.resource_id = p.id
-                                AND ac.user_id = ?
-            WHERE ac.permission = 'read'
+            JOIN access_control ac
+            ON ac.resource_type = 'prescription'
+            AND ac.user_id = ?
+            AND ac.permission = 'read'
+            AND (
+                (ac.resource_id = p.id AND ac.all_records = 0) OR
+                (ac.all_records = 1 AND ac.granted_by = p.patient_id)
+            )
             ORDER BY p.created_at DESC
         """;
 

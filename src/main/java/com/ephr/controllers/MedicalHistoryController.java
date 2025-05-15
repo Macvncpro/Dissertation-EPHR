@@ -166,10 +166,14 @@ public class MedicalHistoryController {
         String sql = """
             SELECT mh.*
             FROM medical_history mh
-            JOIN access_control ac ON ac.resource_type = 'medical_history'
-                                AND ac.resource_id = mh.id
-                                AND ac.user_id = ?
-            WHERE ac.permission = 'read'
+            JOIN access_control ac
+            ON ac.resource_type = 'medical_history'
+            AND ac.user_id = ?
+            AND ac.permission = 'read'
+            AND (
+                (ac.resource_id = mh.id AND ac.all_records = 0) OR
+                (ac.all_records = 1 AND ac.granted_by = mh.patient_id)
+            )
         """;
 
         try (Connection conn = DatabaseHelper.getConnection();

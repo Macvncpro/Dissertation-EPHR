@@ -133,18 +133,22 @@ public class DiagnosticReportsController {
 
         int currentUserId = DatabaseHelper.getUserIdByEmail(this.email);
 
-        String query = """
+        String sql = """
             SELECT dr.*
             FROM diagnostic_report dr
-            JOIN access_control ac ON ac.resource_type = 'diagnostic_report'
-                                AND ac.resource_id = dr.id
-                                AND ac.user_id = ?
-            WHERE ac.permission = 'read'
+            JOIN access_control ac
+            ON ac.resource_type = 'diagnostic_report'
+            AND ac.user_id = ?
+            AND ac.permission = 'read'
+            AND (
+                (ac.resource_id = dr.id AND ac.all_records = 0) OR
+                (ac.all_records = 1 AND ac.granted_by = dr.patient_id)
+            )
             ORDER BY dr.report_date DESC
         """;
 
         try (Connection conn = DatabaseHelper.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, currentUserId);
             ResultSet rs = stmt.executeQuery();

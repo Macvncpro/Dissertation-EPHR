@@ -276,25 +276,29 @@ public class MainEPHRController {
             node.setManaged(visible);
         }
     }
-
+    
     @FXML
     private void handleManageAccess() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Grant Access to a Healthcare Professional");
-        dialog.setHeaderText("Select a record to grant access");
+        dialog.setHeaderText("Choose a user and record type to share");
 
-        // UI controls
         ComboBox<String> userDropdown = new ComboBox<>(DatabaseHelper.getDoctorAndNurseEmails());
         ChoiceBox<String> resourceTypeBox = new ChoiceBox<>(FXCollections.observableArrayList("prescription", "medical_history", "diagnostic_report"));
         ChoiceBox<String> permissionBox = new ChoiceBox<>(FXCollections.observableArrayList("read"));
         permissionBox.setValue("read");
 
+        CheckBox grantAllBox = new CheckBox("Grant access to all records of this type");
+
         TableView<Map<String, Object>> recordTable = new TableView<>();
         ObservableList<Map<String, Object>> tableData = FXCollections.observableArrayList();
-
-        // Setup Table
-        recordTable.setPlaceholder(new Label("No records loaded."));
         recordTable.setPrefHeight(200);
+        recordTable.setPlaceholder(new Label("No records loaded."));
+
+        grantAllBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            recordTable.setVisible(!newVal);
+            recordTable.setManaged(!newVal);
+        });
 
         resourceTypeBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             tableData.clear();
@@ -315,7 +319,6 @@ public class MainEPHRController {
                     }
                     tableData.setAll(records);
                 }
-
                 case "medical_history" -> {
                     var records = DatabaseHelper.getMedicalHistoryForPatient(patientId);
                     if (!records.isEmpty()) {
@@ -329,7 +332,6 @@ public class MainEPHRController {
                     }
                     tableData.setAll(records);
                 }
-
                 case "diagnostic_report" -> {
                     var records = DatabaseHelper.getDiagnosticReportsForPatient(patientId);
                     if (!records.isEmpty()) {
@@ -346,7 +348,6 @@ public class MainEPHRController {
             recordTable.setItems(tableData);
         });
 
-        // UI layout
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -361,8 +362,10 @@ public class MainEPHRController {
         grid.add(new Label("Permission:"), 0, 2);
         grid.add(permissionBox, 1, 2);
 
-        grid.add(new Label("Select Record:"), 0, 3);
-        grid.add(recordTable, 0, 4, 2, 1);
+        grid.add(grantAllBox, 1, 3);
+
+        grid.add(new Label("Select Record:"), 0, 4);
+        grid.add(recordTable, 0, 5, 2, 1);
 
         dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -370,22 +373,37 @@ public class MainEPHRController {
 
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            var selected = recordTable.getSelectionModel().getSelectedItem();
-            if (selected == null) {
-                new Alert(Alert.AlertType.ERROR, "No record selected.").showAndWait();
-                return;
-            }
-
             int patientId = DatabaseHelper.getPatientIdByEmail(email);
             int userId = DatabaseHelper.getUserIdByEmail(userDropdown.getValue());
             String resourceType = resourceTypeBox.getValue();
             String permission = permissionBox.getValue();
-            int resourceId = (int) selected.get("id");
 
-            boolean granted = DatabaseHelper.insertPatientGrantedAccess(userId, resourceType, resourceId, permission, patientId);
+            boolean grantedAny = false;
 
-            Alert alert = new Alert(granted ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
-            alert.setContentText(granted ? "✅ Access granted." : "❌ Failed to grant access.");
+            if (grantAllBox.isSelected()) {
+                for (Map<String, Object> row : tableData) {
+                    int recordId = (int) row.get("id");
+                    boolean granted = DatabaseHelper.insertPatientGrantedAccess(
+                        userId, resourceType, recordId, permission, patientId, false
+                    );
+                    if (granted) grantedAny = true;
+                }
+            } else {
+                var selected = recordTable.getSelectionModel().getSelectedItem();
+                if (selected == null) {
+                    new Alert(Alert.AlertType.ERROR, "❌ No record selected.").showAndWait();
+                    return;
+                }
+                int recordId = (int) selected.get("id");
+                grantedAny = DatabaseHelper.insertPatientGrantedAccess(
+                    userId, resourceType, recordId, permission, patientId, false
+                );
+            }
+
+            Alert alert = new Alert(grantedAny ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+            alert.setContentText(grantedAny
+                ? "✅ Access granted."
+                : "⚠️ Access already existed or failed.");
             alert.show();
         }
     }

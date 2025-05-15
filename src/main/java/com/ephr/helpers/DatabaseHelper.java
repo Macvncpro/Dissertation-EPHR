@@ -485,16 +485,57 @@ public class DatabaseHelper {
         return -1; // Not found or error
     }
 
-    public static boolean insertPatientGrantedAccess(int userId, String resourceType, int resourceId, String permission, int grantedBy) {
-        String sql = "INSERT INTO access_control (user_id, resource_type, resource_id, permission, granted_by) VALUES (?, ?, ?, ?, ?)";
+    public static boolean insertPatientGrantedAccess(int userId, String resourceType, Integer resourceId, String permission, int grantedBy, boolean allRecords) {
+        if (hasExistingAccess(userId, resourceType, resourceId, permission, grantedBy, allRecords)) {
+            return false; // Prevent duplicate
+        }
+
+        String sql = "INSERT INTO access_control (user_id, resource_type, resource_id, permission, granted_by, all_records) VALUES (?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = getConnection();
-        PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
             stmt.setString(2, resourceType);
-            stmt.setInt(3, resourceId);
+            if (resourceId == null) {
+                stmt.setNull(3, java.sql.Types.INTEGER);
+            } else {
+                stmt.setInt(3, resourceId);
+            }
             stmt.setString(4, permission);
             stmt.setInt(5, grantedBy);
+            stmt.setBoolean(6, allRecords);
+
             return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean hasExistingAccess(int userId, String resourceType, Integer resourceId, String permission, int grantedBy, boolean allRecords) {
+        String sql = """
+            SELECT COUNT(*) FROM access_control
+            WHERE user_id = ? AND resource_type = ? AND permission = ?
+                AND granted_by = ? AND all_records = ?
+                AND (resource_id = ? OR (resource_id IS NULL AND ? IS NULL))
+        """;
+
+        try (Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setString(2, resourceType);
+            stmt.setString(3, permission);
+            stmt.setInt(4, grantedBy);
+            stmt.setBoolean(5, allRecords);
+            if (resourceId == null) {
+                stmt.setNull(6, java.sql.Types.INTEGER);
+                stmt.setNull(7, java.sql.Types.INTEGER);
+            } else {
+                stmt.setInt(6, resourceId);
+                stmt.setInt(7, resourceId);
+            }
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
