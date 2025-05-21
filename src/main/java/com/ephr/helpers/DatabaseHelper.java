@@ -140,7 +140,7 @@ public class DatabaseHelper {
                 row.put("end_date", rs.getString("end_date"));
                 row.put("type", rs.getString("prescription_type"));
 
-                // Optionally fetch medication name if you want it shown
+                // Optionally fetch medication name if needed
                 int medId = rs.getInt("medication_id");
                 String medName = getMedicationNameById(medId);
                 row.put("medication", medName);
@@ -239,7 +239,7 @@ public class DatabaseHelper {
              ResultSet rs = stmt.executeQuery()) {
     
             while (rs.next()) {
-                int patientId = rs.getInt("patient_id"); // ✅ correct field
+                int patientId = rs.getInt("patient_id"); // correct field
                 String patientName = rs.getString("patient_name");
                 String doctorName = rs.getString("doctor_name");
                 String dateTime = rs.getString("appointment_date");

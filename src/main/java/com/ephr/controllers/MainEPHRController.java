@@ -427,7 +427,7 @@ public class MainEPHRController {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Break-the-Glass Access");
-        dialog.setHeaderText("🛑 You are requesting emergency access to protected medical data.");
+        dialog.setHeaderText(" You are requesting emergency access to protected medical data.");
 
         // UI Elements
         TextField nameField = new TextField(fullName);

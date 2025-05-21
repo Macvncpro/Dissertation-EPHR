@@ -37,7 +37,7 @@ public class LoginController {
                     "&response_type=code" +
                     "&redirect_uri=http://localhost:8080/callback" +
                     "&scope=openid profile email" +
-                    "&prompt=login";  // <-- NEW: Forces login every time
+                    "&prompt=login";  //Forces login every time
     
             System.out.println("🔒 Redirecting to Auth0 login...");
             webEngine.load(authURL);
@@ -87,7 +87,7 @@ public class LoginController {
             DecodedJWT decodedJWT = JWT.decode(idToken);
             String email = decodedJWT.getClaim("email").asString();
     
-            // 🧠 Get role here from DB
+            // Get role here from DB
             String role = DatabaseHelper.getUserRoleByEmail(email);
             System.out.println("📧 Logged in as: " + email);
             System.out.println("🧾 Role: " + role);
@@ -99,7 +99,7 @@ public class LoginController {
     
             Platform.runLater(() -> {
                 try {
-                    Main.showEPHRScreen(email, role); // ✅ pass role here
+                    Main.showEPHRScreen(email, role); // pass role here
                 } catch (IOException e) {
                     e.printStackTrace();
                     errorLabel.setText("❌ Failed to load dashboard.");
