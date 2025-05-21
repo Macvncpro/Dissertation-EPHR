@@ -215,7 +215,8 @@ public class MainEPHRController {
         setNodeVisibility(
             false,
             deleteButton,
-            auditButton
+            auditButton,
+            manageAccessButton
         );
     }
     
@@ -225,7 +226,8 @@ public class MainEPHRController {
             false,
             prescriptionsButton,
             breakGlassButton,
-            auditButton
+            auditButton,
+            manageAccessButton
         );
     }
     
@@ -242,7 +244,8 @@ public class MainEPHRController {
             prescriptionsButton, 
             diagnosticReportsButton, 
             deleteButton,
-            auditButton
+            auditButton,
+            manageAccessButton
         );
     }
     

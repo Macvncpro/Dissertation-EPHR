@@ -5,7 +5,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
 public class EncryptionHelper {
-    private static final String SECRET_KEY = "A1B2C3D4E5F6G7H8"; // 16 chars = 128-bit key
+    private static final String SECRET_KEY = "A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6"; // 32 chars = 256-bit key
 
     public static String encrypt(String data) {
         try {
